@@ -5,7 +5,7 @@ bl_info = {
     "version": (1, 0, 0),
     "location": "UV/Image Editor",
     "category": "Render",
-    "description": """An AI-accelerated denoiser for Cycles."""
+    "description": """An AI-accelerated denoiser for Cycles and Blender."""
 }
 
 if "bpy" in locals():
@@ -106,7 +106,7 @@ def swaptorender(placeholder=None):
 
 def togglednoise(self=None, context=None):
     """Toggles the D-NOISE denosier for rendering single frames and animations"""
-    if not bpy.context.scene.EnableDnoise:
+    if not bpy.context.scene.EnableDNOISE:
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
         bpy.app.handlers.render_write.remove(runanimdenoiser)
     else:
@@ -162,7 +162,7 @@ class ToggleDnoiseExport(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class DnoisePanel(bpy.types.Panel):
+class DNOISEPanel(bpy.types.Panel):
     bl_label = "D-NOISE: AI Denoiser"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
@@ -171,7 +171,7 @@ class DnoisePanel(bpy.types.Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.prop(bpy.context.scene, 'EnableDnoise', text="")
+        layout.prop(bpy.context.scene, 'EnableDNOISE', text="")
 
     def draw(self, context):
         layout = self.layout
@@ -210,10 +210,10 @@ def register():
     # register classes
     bpy.utils.register_class(QuickDenoise)
     bpy.utils.register_class(ToggleDnoiseExport)
-    bpy.utils.register_class(DnoisePanel)
+    bpy.utils.register_class(DNOISEPanel)
 
     # register properties
-    bpy.types.Scene.EnableDnoise = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
+    bpy.types.Scene.EnableDNOISE = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
     bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
     bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(update=togglenodes, description="Enabling extra passes will help maintain fine detail in texures, but may cause artifacts.")
 
@@ -235,7 +235,7 @@ def unregister():
     # unregister classes
     bpy.utils.unregister_class(QuickDenoise)
     bpy.utils.unregister_class(ToggleDnoiseExport)
-    bpy.utils.unregister_class(DnoisePanel)
+    bpy.utils.unregister_class(DNOISEPanel)
 
     # clean out any past files from the script directory
     global SCRIPT_DIR, FORMAT_EXTENSIONS
@@ -246,7 +246,7 @@ def unregister():
         togglenodes()
 
     # unregister properties
-    del bpy.types.Scene.EnableDnoise
+    del bpy.types.Scene.EnableDNOISE
     del bpy.types.Scene.EnableHDRData
 
     # unregister variables
