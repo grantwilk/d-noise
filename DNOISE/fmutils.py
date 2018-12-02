@@ -10,7 +10,7 @@ def save(directory, filename, image):
     """Saves a Blender image file to an external directory"""
     if image.name == 'Render Result':
         image.save_render(filepath=os.path.join(directory, filename))
-    elif image.name != 'OptiX Export':
+    elif image != None:
         image.pack()
         image.filepath = os.path.join(directory, filename)
         image.save()
@@ -18,9 +18,9 @@ def save(directory, filename, image):
 
 
 def load(directory, filename, imagekey):
-    """Loads an external image into a Blender image file called 'OptiX Export'"""
-    if 'OptiX Export' in bpy.data.images:
-        bpy.data.images.remove(bpy.data.images['OptiX Export'])
+    """Loads an external image into a Blender image file called 'D-NOISE Export'"""
+    if 'D-NOISE Export' in bpy.data.images:
+        bpy.data.images.remove(bpy.data.images['D-NOISE Export'])
 
     bpy.data.images.load(filepath=os.path.join(directory, filename))
     bpy.data.images[filename].name = imagekey
@@ -133,7 +133,7 @@ def setcolorspace(imagekey, fileformat):
 def imageexists(imagekey):
     """Returns true if the given image key exists in Blender"""
     if imagekey not in bpy.data.images:
-        print(">> OPTIX ERROR: image {} does not exist in bpy.data.images".format(imagekey))
+        print(">> D-NOISE ERROR: image {} does not exist in bpy.data.images".format(imagekey))
 
     return imagekey in bpy.data.images
 
@@ -143,7 +143,7 @@ def checkformat(file_format, extension_dict):
     if file_format in extension_dict:
         file_format = extension_dict[file_format]
     else:
-        print(">> OPTIX ERROR: File output format {0} is not supported by OptiX. Defaulting to 'PNG'.".format(file_format))
+        print(">> D-NOISE ERROR: File output format {0} is not supported by D-NOISE. Defaulting to 'PNG'.".format(file_format))
         bpy.context.scene.render.image_settings.file_format = 'PNG'
         file_format = extension_dict['PNG']
 
@@ -155,7 +155,7 @@ def checkformat(file_format, extension_dict):
 
 
 def enablepasses(renderlayer):
-    """Enables the passes required by OptiX for extra pass denoising"""
+    """Enables the passes required by D-NOISE for extra pass denoising"""
     bpy.context.scene.render.layers[renderlayer].use_pass_diffuse_color = True
     bpy.context.scene.render.layers[renderlayer].use_pass_subsurface_color = True
     bpy.context.scene.render.layers[renderlayer].use_pass_emit = True
@@ -163,7 +163,7 @@ def enablepasses(renderlayer):
 
 
 def disablepasses(renderlayer):
-    """Disables the passes required by OptiX for extra pass denoising"""
+    """Disables the passes required by D-NOISE for extra pass denoising"""
     bpy.context.scene.render.layers[renderlayer].use_pass_diffuse_color = False
     bpy.context.scene.render.layers[renderlayer].use_pass_subsurface_color = False
     bpy.context.scene.render.layers[renderlayer].use_pass_emit = False

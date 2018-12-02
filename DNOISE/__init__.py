@@ -1,11 +1,11 @@
 bl_info = {
-    "name": "OptiX AI-Accelerated Denoiser",
+    "name": "D-NOISE: AI-Accelerated Denoiser",
     "author": "Grant Wilk",
-    "blender": (2, 7x),
+    "blender": (2, 7),
     "version": (1, 0, 0),
     "location": "UV/Image Editor",
     "category": "Render",
-    "description": """NVIDIA's OptiX AI-Accelerated Denoiser implemented into Blender."""
+    "description": """An AI-accelerated denoiser for Cycles."""
 }
 
 if "bpy" in locals():
@@ -24,8 +24,8 @@ from . import optix, fmutils
 # directory of the script files
 SCRIPT_DIR = os.path.dirname(__file__)
 
-# compositor nodes added by the OptiX Denoiser Add-on
-OPTIX_NODES = []
+# compositor nodes added by D-NOISE
+DNOISE_NODES = []
 
 # custom icons dictionary
 CUSTOM_ICONS = None
@@ -61,9 +61,9 @@ def runpostdenoiser():
         fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
 
     optix.beautydenoise(SCRIPT_DIR, optix.gethdr(), source_name)
-    fmutils.load(SCRIPT_DIR, source_name, 'OptiX Export')
-    fmutils.setactiveimage('OptiX Export', bpy.context.space_data)
-    fmutils.setcolorspace('OptiX Export', file_format)
+    fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
+    fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
+    fmutils.setcolorspace('D-NOISE Export', file_format)
     fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
@@ -78,9 +78,9 @@ def runrenderdenoiser(placeholder=None):
 
     fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
     optix.denoise(SCRIPT_DIR, source_name)
-    fmutils.load(SCRIPT_DIR, source_name, 'OptiX Export')
-    fmutils.setactiveimage('OptiX Export')
-    fmutils.setcolorspace('OptiX Export', file_format)
+    fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
+    fmutils.setactiveimage('D-NOISE Export')
+    fmutils.setcolorspace('D-NOISE Export', file_format)
     fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
@@ -98,36 +98,34 @@ def runanimdenoiser(placeholder=None):
 
 
 def swaptorender(placeholder=None):
-    """Swithces any image editors with the OptiX Export back to the Render Result before rendering"""
+    """Switches any image editors with the D-NOISE Export back to the Render Result before rendering"""
     for area in bpy.data.window_managers['WinMan'].windows[0].screen.areas:
-        if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'OptiX Export':
+        if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'D-NOISE Export':
             area.spaces[0].image = bpy.data.images['Render Result']
 
 
-def toggleoptixdenoiser(self=None, context=None):
-    """Toggles the OptiX denosier for rendering single frames and animations"""
-    if not bpy.context.scene.EnableOptix:
-        bpy.app.handlers.render_pre.remove(swaptorender)
+def togglednoise(self=None, context=None):
+    """Toggles the D-NOISE denosier for rendering single frames and animations"""
+    if not bpy.context.scene.EnableDnoise:
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
         bpy.app.handlers.render_write.remove(runanimdenoiser)
     else:
-        bpy.app.handlers.render_pre.append(swaptorender)
         bpy.app.handlers.render_complete.append(runrenderdenoiser)
         bpy.app.handlers.render_write.append(runanimdenoiser)
 
 
 def togglenodes(self=None, context=None):
-    """Toggles the OptiX nodes in the compositor"""
-    global OPTIX_NODES, SCRIPT_DIR
+    """Toggles the D-NOISE nodes in the compositor"""
+    global DNOISE_NODES, SCRIPT_DIR
     active_layer = bpy.context.scene.render.layers.active.name
 
     if bpy.context.scene.EnableExtraPasses:
         fmutils.enablepasses(active_layer)
         optix.cleannodes()
-        OPTIX_NODES = optix.addnodes(SCRIPT_DIR, OPTIX_NODES)
+        DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
     else:
         fmutils.disablepasses(active_layer)
-        OPTIX_NODES = optix.removenodes(OPTIX_NODES)
+        DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
 
@@ -136,18 +134,18 @@ def togglenodes(self=None, context=None):
 #
 
 
-class OptixDenoise(bpy.types.Operator):
-    bl_idname = "optix.denoise"
-    bl_label = "OptiX AI Denoiser"
+class QuickDenoise(bpy.types.Operator):
+    bl_idname = "dnoise.quick_denoise"
+    bl_label = "D-NOISE"
 
     def execute(self, context):
         runpostdenoiser()
         return {'FINISHED'}
 
 
-class ToggleOptixExport(bpy.types.Operator):
-    bl_idname = "optix.toggle_export"
-    bl_label = "Toggle OptiX Export in 3D Viewport"
+class ToggleDnoiseExport(bpy.types.Operator):
+    bl_idname = "dnoise.toggle_export"
+    bl_label = "Toggle D-NOISE Export in 3D Viewport"
 
     global DENOISE_SOURCE
 
@@ -155,17 +153,17 @@ class ToggleOptixExport(bpy.types.Operator):
         current_image = bpy.context.space_data.image
 
         if DENOISE_SOURCE is not None:
-            if (current_image == bpy.data.images['OptiX Export']) and (DENOISE_SOURCE.name in bpy.data.images):
+            if (current_image == bpy.data.images['D-NOISE Export']) and (DENOISE_SOURCE.name in bpy.data.images):
                 bpy.context.space_data.image = DENOISE_SOURCE
 
-            elif (current_image != bpy.data.images['OptiX Export']) and ('OptiX Export' in bpy.data.images):
-                bpy.context.space_data.image = bpy.data.images['OptiX Export']
+            elif (current_image != bpy.data.images['D-NOISE Export']) and ('D-NOISE Export' in bpy.data.images):
+                bpy.context.space_data.image = bpy.data.images['D-NOISE Export']
 
         return {'FINISHED'}
 
 
-class OptixPanel(bpy.types.Panel):
-    bl_label = "OptiX AI Denoiser"
+class DnoisePanel(bpy.types.Panel):
+    bl_label = "D-NOISE: AI Denoiser"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "render_layer"
@@ -173,7 +171,7 @@ class OptixPanel(bpy.types.Panel):
 
     def draw_header(self, context):
         layout = self.layout
-        layout.prop(bpy.context.scene, 'EnableOptix', text="")
+        layout.prop(bpy.context.scene, 'EnableDnoise', text="")
 
     def draw(self, context):
         layout = self.layout
@@ -194,13 +192,13 @@ def appendto_image_ht_header(self, context):
     layout.separator()
     row = layout.row(align=True)
     row.operator(
-        "optix.denoise",
-        text="Run OptiX AI Denoiser",
-        icon_value=CUSTOM_ICONS['optix_denoiser'].icon_id)
-    if bpy.context.space_data.image.name == 'OptiX Export':
-        row.operator("optix.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
+        "dnoise.quick_denoise",
+        text="Quick D-NOISE",
+        icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+    if bpy.context.space_data.image.name == 'D-NOISE Export':
+        row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
     else:
-        row.operator("optix.toggle_export", text="", icon="RESTRICT_VIEW_ON")
+        row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_ON")
 
 
 #
@@ -210,12 +208,12 @@ def appendto_image_ht_header(self, context):
 
 def register():
     # register classes
-    bpy.utils.register_class(OptixDenoise)
-    bpy.utils.register_class(ToggleOptixExport)
-    bpy.utils.register_class(OptixPanel)
+    bpy.utils.register_class(QuickDenoise)
+    bpy.utils.register_class(ToggleDnoiseExport)
+    bpy.utils.register_class(DnoisePanel)
 
     # register properties
-    bpy.types.Scene.EnableOptix = bpy.props.BoolProperty(update=toggleoptixdenoiser, description="Denoise the rendered image using OptiX AI-Accelerated Denoiser")
+    bpy.types.Scene.EnableDnoise = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
     bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
     bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(update=togglenodes, description="Enabling extra passes will help maintain fine detail in texures, but may cause artifacts.")
 
@@ -223,7 +221,7 @@ def register():
     global CUSTOM_ICONS
     CUSTOM_ICONS = bpy.utils.previews.new()
     icons_dir = os.path.join(os.path.dirname(__file__), "icon")
-    CUSTOM_ICONS.load("optix_denoiser", os.path.join(icons_dir, "blenvidia_icon.png"), 'IMAGE')
+    CUSTOM_ICONS.load("dnoise_icon", os.path.join(icons_dir, "dnoise_icon.png"), 'IMAGE')
 
     # register UI implementations
     bpy.types.IMAGE_HT_header.append(appendto_image_ht_header)
@@ -235,9 +233,9 @@ def register():
 
 def unregister():
     # unregister classes
-    bpy.utils.unregister_class(OptixDenoise)
-    bpy.utils.unregister_class(ToggleOptixExport)
-    bpy.utils.unregister_class(OptixPanel)
+    bpy.utils.unregister_class(QuickDenoise)
+    bpy.utils.unregister_class(ToggleDnoiseExport)
+    bpy.utils.unregister_class(DnoisePanel)
 
     # clean out any past files from the script directory
     global SCRIPT_DIR, FORMAT_EXTENSIONS
@@ -248,7 +246,7 @@ def unregister():
         togglenodes()
 
     # unregister properties
-    del bpy.types.Scene.EnableOptix
+    del bpy.types.Scene.EnableDnoise
     del bpy.types.Scene.EnableHDRData
 
     # unregister variables

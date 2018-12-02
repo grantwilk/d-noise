@@ -37,27 +37,27 @@ def fulldenoise(directory, hdr, source_name,  normal_name, albedo_name):
 
 
 def addnodes(output_dir, nodes):
-    """Adds the OptiX extra pass node set to the compositor node tree"""
+    """Adds the D-NOISE extra pass node set to the compositor node tree"""
     bpy.context.scene.use_nodes = True
     tree = bpy.context.scene.node_tree
 
     # create new render layer node
     render_layer = tree.nodes.new(type='CompositorNodeRLayers')
     render_layer.layer = bpy.context.scene.render.layers.active.name
-    render_layer.label = 'Render Layers [OptiX]'
+    render_layer.label = '[D-NOISE] Render Layers'
     render_layer.location = 0, 0
 
     # create first mix RGB node
     mix_emit_diffcol = tree.nodes.new('CompositorNodeMixRGB')
     mix_emit_diffcol.blend_type = 'ADD'
-    mix_emit_diffcol.label = 'Add [OptiX]'
+    mix_emit_diffcol.label = '[D-NOISE] Add'
     mix_emit_diffcol.location = 180, -120
     mix_emit_diffcol.hide = True
 
     # create first mix RGB node
     mix_last_subcol = tree.nodes.new('CompositorNodeMixRGB')
     mix_last_subcol.blend_type = 'ADD'
-    mix_last_subcol.label = 'Add [OptiX]'
+    mix_last_subcol.label = '[D-NOISE] Add'
     mix_last_subcol.location = 300, -120
     mix_last_subcol.hide = True
 
@@ -70,7 +70,7 @@ def addnodes(output_dir, nodes):
     file_output.show_options = False
     file_output.format.file_format = 'OPEN_EXR'
     file_output.format.color_depth = '32'
-    file_output.label = 'File Output [OptiX]'
+    file_output.label = '[D-NOISE] File Output'
     file_output.location = 420, -100
     file_output.hide = True
 
@@ -92,7 +92,7 @@ def addnodes(output_dir, nodes):
 
 
 def removenodes(nodes):
-    """Removes the OptiX extra pass node set to the compositor node tree"""
+    """Removes the D-NOISE extra pass node set to the compositor node tree"""
     bpy.context.scene.use_nodes = True
     tree = bpy.context.scene.node_tree
 
@@ -103,11 +103,11 @@ def removenodes(nodes):
 
 
 def cleannodes():
-    """Returns true if the OptiX extra pass nodes already exist in the compositor"""
+    """Returns true if the D-NOISE extra pass nodes already exist in the compositor"""
     bpy.context.scene.use_nodes = True
     tree = bpy.context.scene.node_tree
     for node in bpy.context.scene.node_tree.nodes:
-        if "OptiX" in node.label:
+        if "D-NOISE" in node.label:
             tree.nodes.remove(node)
 
 
