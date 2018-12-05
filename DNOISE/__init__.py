@@ -1,4 +1,6 @@
 """
+Copyright (C) 2018 Grant Wilk
+
 This file is part of D-NOISE: AI-Acclerated Denoiser.
 
 D-NOISE: AI-Acclerated Denoiser is free software: you can redistribute
