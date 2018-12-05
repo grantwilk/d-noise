@@ -143,7 +143,6 @@ def togglenodes(self=None, context=None):
         DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
-
 #
 # Operators
 #
@@ -179,12 +178,19 @@ class ToggleDnoiseExport(bpy.types.Operator):
 
 class InstallOptiXBinaries(bpy.types.Operator):
     bl_idname = "dnoise.install_binaries"
-    bl_label = "Download and install the OptiX binaries."
+    bl_label = "This will download a 243MB file. Continue?"
+
+    @classmethod
+    def poll(cls, context):
+        return True
 
     def execute(self, context):
         global SCRIPT_DIR
-        urlutils.downloadBinaries(SCRIPT_DIR)
+        urlutils.downloadbin()
         return {'FINISHED'}
+
+    def invoke(self,context,event):
+        return context.window_manager.invoke_props_dialog(self)
 
 
 class DNOISEPanel(bpy.types.Panel):
@@ -214,20 +220,26 @@ class DNOISEPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         row = layout.row()
         row.scale_y = 1.5
-        if not os.path.isdir("OptiXDenoiser"):
+        if os.path.exists("DNOISE_OptiXBinaries.zip"):
             row.operator("dnoise.install_binaries",
-                         text="Download and Install OptiX Binaries",
+                         text="Install OptiX Binaries",
                          icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+            row.label(icon='LOAD_FACTORY',
+                      text="Installing OptiX binaries... {:.1f}%".format(urlutils.getprogress()))
 
-            row = layout.row()
+        elif not (os.path.exists("OptixDenoiser//Denoiser.exe")):
+            row.operator("dnoise.install_binaries",
+                         text="Install OptiX Binaries",
+                         icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
             row.label(icon='ERROR',
-                      text="OptiX binaries must be installed for D-NOISE to work properly!")
+                      text="OptiX binaries are not installed!")
             
         else:
             row.operator("dnoise.install_binaries",
-                         text="Download and Reinstall OptiX Binaries",
+                         text="Reinstall OptiX Binaries",
                          icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
-
+            row.label(icon='FILE_TICK',
+                      text="OptiX binaries are installed!")
 #
 # UI Implementations
 #

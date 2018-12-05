@@ -18,22 +18,57 @@ with D-NOISE: AI-Acclerated Denoiser.  If not, see <https://www.gnu.org/licenses
 """
 
 
-import urllib.request
-import zipfile
+from urllib.request import urlopen
 import os
 import shutil
+import threading
+import zipfile
+import bpy
 
-def downloadBinaries(directory):
-    os.chdir(directory)
+SCRIPT_DIR = os.path.dirname(__file__)
+CHUNK_SIZE = 1000000 #10240 #bytes
+FILE_SIZE = 254740104 #bytes
+DOWNLOAD_PERCENT = 0
 
-    if os.path.isdir("OptiXDenoiser"):
-        shutil.rmtree("OptiXDenoiser")
+def downloadbin():
+    global SCRIPT_DIR, CHUNK_SIZE, DOWNLOAD_PERCENT
+    def download():
+        os.chdir(SCRIPT_DIR)
 
-    url = "https://www.googleapis.com/drive/v3/files/1xTttPPtDWVeVQBZ5IvgphLMzfMqGwbiZ/?key=AIzaSyAeQC-x72dJTVWT6z_BqMescy4y26GG-aY&alt=media"
-    filename = "OptiXDenoiserBinaries.zip"
-    urllib.request.urlretrieve(url,filename)
+        if os.path.isdir("OptiXDenoiser"):
+            shutil.rmtree("OptiXDenoiser")
 
-    with zipfile.ZipFile("OptiXDenoiserBinaries.zip", 'r') as zip_ref:
-        zip_ref.extractall("")
+        url = "https://www.googleapis.com/drive/v3/files/1xTttPPtDWVeVQBZ5IvgphLMzfMqGwbiZ/?key=AIzaSyAeQC-x72dJTVWT6z_BqMescy4y26GG-aY&alt=media"
+        filename = "DNOISE_OptiXBinaries.zip"
+        chunkcount = 0
 
-    os.remove("OptiXDenoiserBinaries.zip")
+        response = urlopen(url)
+        with open(filename, 'wb') as f:
+            while True:
+                chunk = response.read(CHUNK_SIZE)
+                if not chunk:
+                    break
+                f.write(chunk)
+                chunkcount += 1
+                updateprogress(chunkcount)
+
+        with zipfile.ZipFile(filename, 'r') as zip_ref:
+            zip_ref.extractall("")
+
+        os.remove(filename)
+
+    t = threading.Thread(target=download)
+    t.start()
+
+
+def updateprogress(chunkcount):
+    global CHUNK_SIZE, FILE_SIZE, DOWNLOAD_PERCENT
+    downloadsize = chunkcount * CHUNK_SIZE
+    DOWNLOAD_PERCENT = (downloadsize / FILE_SIZE) * 100
+    if DOWNLOAD_PERCENT > 100:
+        DOWNLOAD_PERCENT = 100
+
+
+def getprogress():
+    global DOWNLOAD_PERCENT
+    return DOWNLOAD_PERCENT
