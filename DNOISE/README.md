@@ -1,4 +1,4 @@
-![alt text](https://remingtongraphics.net/wp-content/uploads/2018/01/DNOISE_LogoDark_250px.png)<br/> **AI-Accelerated Denoiser for Blender**  
+![alt text](https://remingtongraphics.net/wp-content/uploads/2018/01/DNOISE_LogoDark_250px.png)
 
 ##### D-NOISE, powered by NVIDIA’s OptiX AI-Acclerated Denoiser, is a game-changing denoising platform that rapidly accelerates the process of rendering high-quality noiseless images in Blender.
 
