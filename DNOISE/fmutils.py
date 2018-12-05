@@ -130,7 +130,7 @@ def setactiveimage_context(imagekey, space):
 def setactiveimage_nocontext(imagekey):
     """Sets the given image as the active image of any image editor displaying the render result"""
     for area in bpy.data.window_managers['WinMan'].windows[0].screen.areas:
-        if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'Render Result':
+        if area.type == 'IMAGE_EDITOR' and (area.spaces[0].image is None or area.spaces[0].image.name == 'Render Result'):
             area.spaces[0].image = bpy.data.images[imagekey]
 
 

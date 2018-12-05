@@ -69,17 +69,17 @@ def runpostdenoiser():
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
     DENOISE_SOURCE = bpy.context.space_data.image
 
-    if DENOISE_SOURCE is not None:
+    if DENOISE_SOURCE is not None and DENOISE_SOURCE.name is not 'D-NOISE Export':
         file_format = DENOISE_SOURCE.file_format
         file_format = fmutils.checkformat(file_format, FORMAT_EXTENSIONS)
         source_name = 'source.{0}'.format(file_format)
         fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
 
-    optix.beautydenoise(SCRIPT_DIR, optix.gethdr(), source_name)
-    fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
-    fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
-    fmutils.setcolorspace('D-NOISE Export', file_format)
-    fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+        optix.beautydenoise(SCRIPT_DIR, optix.gethdr(), source_name)
+        fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
+        fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
+        fmutils.setcolorspace('D-NOISE Export', file_format)
+        fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
 def runrenderdenoiser(placeholder=None):
@@ -243,7 +243,7 @@ def appendto_image_ht_header(self, context):
         "dnoise.quick_denoise",
         text="Quick D-NOISE",
         icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
-    if bpy.context.space_data.image.name == 'D-NOISE Export':
+    if bpy.context.space_data.image is not None and bpy.context.space_data.image.name == 'D-NOISE Export':
         row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
     else:
         row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_ON")
