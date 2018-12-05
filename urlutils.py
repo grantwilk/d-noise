@@ -23,7 +23,7 @@ import os
 import shutil
 import threading
 import zipfile
-import bpy
+from . import fmutils
 
 SCRIPT_DIR = os.path.dirname(__file__)
 CHUNK_SIZE = 1000000 #10240 #bytes
@@ -55,6 +55,7 @@ def downloadbin():
             zip_ref.extractall("")
 
         os.remove(filename)
+        fmutils.forceUIUpdate("USER_PREFERENCES")
 
     t = threading.Thread(target=download)
     t.start()
@@ -66,6 +67,8 @@ def updateprogress(chunkcount):
     DOWNLOAD_PERCENT = (downloadsize / FILE_SIZE) * 100
     if DOWNLOAD_PERCENT > 100:
         DOWNLOAD_PERCENT = 100
+
+    fmutils.forceUIUpdate("USER_PREFERENCES")
 
 
 def getprogress():

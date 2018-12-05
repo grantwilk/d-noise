@@ -197,3 +197,13 @@ def disablepasses(renderlayer):
     bpy.context.scene.render.layers[renderlayer].use_pass_subsurface_color = False
     bpy.context.scene.render.layers[renderlayer].use_pass_emit = False
     bpy.context.scene.render.layers[renderlayer].use_pass_normal = False
+
+#
+# Force Update Function
+#
+
+def forceUIUpdate(area_type):
+    for window in bpy.data.window_managers['WinMan'].windows:
+        for area in window.screen.areas:
+            if area.type == area_type:
+                area.tag_redraw()
