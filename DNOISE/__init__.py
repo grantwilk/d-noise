@@ -5,7 +5,9 @@ bl_info = {
     "version": (1, 0, 0),
     "location": "UV/Image Editor",
     "category": "Render",
-    "description": """An AI-accelerated denoiser for Cycles and Blender."""
+    "description": "An AI-accelerated denoiser for Blender.",
+    "wiki_url": "https://remingtongraphics.net/tools/d-noise/",
+    "tracker_url": "https://github.com/grantwilk/DNOISE"
 }
 
 import bpy
