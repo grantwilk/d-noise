@@ -34,7 +34,6 @@ def downloadbin():
     global SCRIPT_DIR, CHUNK_SIZE, DOWNLOAD_PERCENT
     def download():
         os.chdir(SCRIPT_DIR)
-
         if os.path.isdir("OptiXDenoiser"):
             shutil.rmtree("OptiXDenoiser")
 
