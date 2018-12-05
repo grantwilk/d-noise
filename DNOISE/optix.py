@@ -21,14 +21,14 @@ def denoise(directory, source_name):
 def beautydenoise(directory, hdr, source_name):
     """Runs OptiX standalone denoiser with information for a beauty pass"""
     os.chdir(directory)
-    os.system('.\OptixDenoiser_v2_1\Denoiser.exe -hdr {0} -i "{1}" -o "{1}"'.format(hdr, source_name))
+    os.system('.\OptiXDenoiser\Denoiser.exe -hdr {0} -i "{1}" -o "{1}"'.format(hdr, source_name))
 
 
 def fulldenoise(directory, hdr, source_name,  normal_name, albedo_name):
     """Runs OptiX standalone denoiser with information for a full denoising pass"""
     os.chdir(directory)
     convertnormals(directory, normal_name)
-    os.system('.\OptixDenoiser_v2_1\Denoiser.exe -hdr {0} -i "{1}" -o "{1}" -n "{2}" -a "{3}"'.format(hdr, source_name, normal_name, albedo_name))
+    os.system('.\OptiXDenoiser\Denoiser.exe -hdr {0} -i "{1}" -o "{1}" -n "{2}" -a "{3}"'.format(hdr, source_name, normal_name, albedo_name))
 
 #
 # Node Functions
