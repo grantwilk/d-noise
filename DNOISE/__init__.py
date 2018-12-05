@@ -192,7 +192,7 @@ class DNOISEPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         row = layout.row()
         row.scale_y = 1.5
-        if not os.path.isdir("DNOISE"):
+        if not os.path.isdir("OptiXDenoiser"):
             row.operator("dnoise.install_binaries",
                          text="Download and Install OptiX Binaries",
                          icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
