@@ -1,4 +1,4 @@
-# **D-NOISE: AI- Accelerated Denoiser**
+####![alt text](https://remingtongraphics.net/wp-content/uploads/2018/01/DNOISE_LogoDark_250px.png)<br/> **AI- Accelerated Denoiser**  
 D-NOISE, powered by NVIDIA’s OptiX AI-Acclerated Denoiser, is a game-changing denoising platform that 
 rapidly accelerates the process of rendering high-quality noiseless images in Blender.
 
@@ -18,8 +18,3 @@ Installation guide available on Remington Graphics: https://remingtongraphics.ne
 
 ### **Documentation**
 Documentation available on Remington Graphics: https://remingtongraphics.net/tools/d-noise/
-
-### **Comparison**
-| ![alt text](https://remingtongraphics.net/wp-content/uploads/2018/11/Cycles-Comparison.png) | ![alt text](https://remingtongraphics.net/wp-content/uploads/2018/11/D-NOISE-Comparison.png) |
-| -------- | :-------------:|
-
