@@ -1,12 +1,10 @@
-![alt text](https://remingtongraphics.net/wp-content/uploads/2018/01/DNOISE_LogoDark_250px.png)<br/> **AI- Accelerated Denoiser**  
-
-
+![alt text](https://remingtongraphics.net/wp-content/uploads/2018/01/DNOISE_LogoDark_250px.png)<br/> **AI-Accelerated Denoiser**  
 
 D-NOISE, powered by NVIDIA’s OptiX AI-Acclerated Denoiser, is a game-changing denoising platform that 
 rapidly accelerates the process of rendering high-quality noiseless images in Blender.
-
+---
 ### **Download:**
-Download the add-on from Remington Graphics: https://remingtongraphics.net/tools/d-noise/
+Download the add-on: https://remingtongraphics.net/tools/d-noise/
 
 ### **Features:**
 |               |               |
@@ -17,7 +15,16 @@ Download the add-on from Remington Graphics: https://remingtongraphics.net/tools
 | ![alt text](https://remingtongraphics.net/wp-content/uploads/2018/11/Jim_DNOISE-min-1.png) | **HDR Training:** HDR training data enables the underlying AI denoiser to maintain detail in nearly any lighting scenario, even harsh darkness.
 
 ### **Installation**
-Installation guide available on Remington Graphics: https://remingtongraphics.net/tools/d-noise/
+Installation guide: https://remingtongraphics.net/tools/d-noise/
 
 ### **Documentation**
-Documentation available on Remington Graphics: https://remingtongraphics.net/tools/d-noise/
+Documentation: https://remingtongraphics.net/tools/d-noise/
+
+### **System Requirements**
+- Blender 2.7x (not yet compatible with 2.80)
+- Windows 7, 8, or 10
+- NVIDIA GTX 600 Series or newer
+- GeForce driver version 390.xx or newer
+
+### **Acknowledgements**
+Special thanks to Declan Russell for sharing his standalone NVIDIA AI Denoiser and Deep Blender for sharing his normal conversion script. Also, massive thanks to everyone who helped in beta testing!
