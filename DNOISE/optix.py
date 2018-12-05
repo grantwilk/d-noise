@@ -14,7 +14,6 @@ def denoise(directory, source_name):
         normal_name = getnormal(directory)
         albedo_name = getalbedo(directory)
         fulldenoise(directory, gethdr(), source_name,  normal_name, albedo_name)
-
     else:
         beautydenoise(directory, gethdr(), source_name)
 

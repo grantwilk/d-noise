@@ -8,18 +8,11 @@ bl_info = {
     "description": """An AI-accelerated denoiser for Cycles and Blender."""
 }
 
-if "bpy" in locals():
-    import importlib
-    if 'optix' in locals():
-        importlib.reload(locals()['optix'])
-    if 'fm_utils' in locals():
-        importlib.reload(locals()['fm_utils'])
-
 import bpy
 import os
 import shutil
 import bpy.utils.previews
-from . import optix, fmutils
+from . import optix, fmutils, urlutils
 
 # directory of the script files
 SCRIPT_DIR = os.path.dirname(__file__)
@@ -162,6 +155,16 @@ class ToggleDnoiseExport(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class InstallOptiXBinaries(bpy.types.Operator):
+    bl_idname = "dnoise.install_binaries"
+    bl_label = "Download and install the OptiX binaries."
+
+    def execute(self, context):
+        global SCRIPT_DIR
+        urlutils.downloadBinaries(SCRIPT_DIR)
+        return {'FINISHED'}
+
+
 class DNOISEPanel(bpy.types.Panel):
     bl_label = "D-NOISE: AI Denoiser"
     bl_space_type = "PROPERTIES"
@@ -179,6 +182,29 @@ class DNOISEPanel(bpy.types.Panel):
         row.prop(bpy.context.scene, "EnableHDRData", text="Use HDR Training")
         row.prop(bpy.context.scene, "EnableExtraPasses", text="Use Extra Passes")
 
+
+class DNOISEPreferences(bpy.types.AddonPreferences):
+    bl_idname = __package__
+
+    def draw(self,context):
+        global CUSTOM_ICONS
+        
+        layout = self.layout
+        row = layout.row()
+        row.scale_y = 1.5
+        if not os.path.isdir("DNOISE"):
+            row.operator("dnoise.install_binaries",
+                         text="Download and Install OptiX Binaries",
+                         icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+
+            row = layout.row()
+            row.label(icon='ERROR',
+                      text="OptiX binaries must be installed for D-NOISE to work properly!")
+            
+        else:
+            row.operator("dnoise.install_binaries",
+                         text="Download and Reinstall OptiX Binaries",
+                         icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
 
 #
 # UI Implementations
@@ -210,7 +236,9 @@ def register():
     # register classes
     bpy.utils.register_class(QuickDenoise)
     bpy.utils.register_class(ToggleDnoiseExport)
+    bpy.utils.register_class(InstallOptiXBinaries)
     bpy.utils.register_class(DNOISEPanel)
+    bpy.utils.register_class(DNOISEPreferences)
 
     # register properties
     bpy.types.Scene.EnableDNOISE = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
@@ -235,7 +263,9 @@ def unregister():
     # unregister classes
     bpy.utils.unregister_class(QuickDenoise)
     bpy.utils.unregister_class(ToggleDnoiseExport)
+    bpy.utils.unregister_class(InstallOptiXBinaries)
     bpy.utils.unregister_class(DNOISEPanel)
+    bpy.utils.unregister_class(DNOISEPreferences)
 
     # clean out any past files from the script directory
     global SCRIPT_DIR, FORMAT_EXTENSIONS
