@@ -21,6 +21,7 @@ with D-NOISE: AI-Acclerated Denoiser.  If not, see <https://www.gnu.org/licenses
 import bpy
 import os
 import zipfile
+import shutil
 
 #
 # EXTERNAL FILE MANAGEMENT
@@ -71,6 +72,7 @@ def getmostrecent(directory):
     render_files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
     return render_files[-1]
 
+
 def unzip(directory, filename):
     file_dir = os.path.join(directory, filename)
     with zipfile.ZipFile(file_dir, 'r') as zip_ref:
@@ -78,6 +80,15 @@ def unzip(directory, filename):
 
     os.chdir(directory)
     os.remove(filename)
+
+
+def removeoptixbin(directory):
+    os.chdir(directory)
+    if os.path.exists("DNOISE_OptiXBinaries.zip"):
+        os.remove("DNOISE_OptiXBinaries.zip")
+    if os.path.isdir("OptiXDenoiser"):
+        shutil.rmtree(os.path.join(directory, "OptiXDenoiser"))
+
 
 #
 # FILE PATH FUNCTIONS

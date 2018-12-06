@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License along
 with D-NOISE: AI-Acclerated Denoiser.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-
+from urllib import request
 from urllib.request import urlopen
 import os
 import shutil
@@ -25,24 +25,26 @@ import threading
 import zipfile
 from . import fmutils
 
+URL = "https://www.googleapis.com/drive/v3/files/1xTttPPtDWVeVQBZ5IvgphLMzfMqGwbiZ/?key=AIzaSyAeQC-x72dJTVWT6z_BqMescy4y26GG-aY&alt=media"
+FILE_NAME = "DNOISE_OptiXBinaries.zip"
+
 SCRIPT_DIR = os.path.dirname(__file__)
-CHUNK_SIZE = 1000000 #10240 #bytes
-FILE_SIZE = 254740104 #bytes
+CHUNK_SIZE = 1024000 #bytes = 1MB
+FILE_SIZE = int(request.urlopen(URL).info().get('Content-Length'))
 DOWNLOAD_PERCENT = 0
 
 def downloadbin():
-    global SCRIPT_DIR, CHUNK_SIZE, DOWNLOAD_PERCENT
+    global SCRIPT_DIR, CHUNK_SIZE, DOWNLOAD_PERCENT, FILE_NAME, URL
     def download():
         os.chdir(SCRIPT_DIR)
+
         if os.path.isdir("OptiXDenoiser"):
             shutil.rmtree("OptiXDenoiser")
 
-        url = "https://www.googleapis.com/drive/v3/files/1xTttPPtDWVeVQBZ5IvgphLMzfMqGwbiZ/?key=AIzaSyAeQC-x72dJTVWT6z_BqMescy4y26GG-aY&alt=media"
-        filename = "DNOISE_OptiXBinaries.zip"
         chunkcount = 0
 
-        response = urlopen(url)
-        with open(filename, 'wb') as f:
+        response = urlopen(URL)
+        with open(FILE_NAME, 'wb') as f:
             while True:
                 chunk = response.read(CHUNK_SIZE)
                 if not chunk:
@@ -51,10 +53,10 @@ def downloadbin():
                 chunkcount += 1
                 updateprogress(chunkcount)
 
-        with zipfile.ZipFile(filename, 'r') as zip_ref:
+        with zipfile.ZipFile(FILE_NAME, 'r') as zip_ref:
             zip_ref.extractall("")
 
-        os.remove(filename)
+        os.remove(FILE_NAME)
         fmutils.forceUIUpdate("USER_PREFERENCES")
 
     t = threading.Thread(target=download)

@@ -193,6 +193,23 @@ class InstallOptiXBinaries(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self)
 
 
+class RemoveOptiXBinaries(bpy.types.Operator):
+    bl_idname = "dnoise.remove_binaries"
+    bl_label = "This will delete the OptiX binaries. Continue?"
+
+    @classmethod
+    def poll(cls, context):
+        return True
+
+    def execute(self, context):
+        global SCRIPT_DIR
+        fmutils.removeoptixbin(SCRIPT_DIR)
+        return {'FINISHED'}
+
+    def invoke(self,context,event):
+        return context.window_manager.invoke_props_dialog(self)
+
+
 class DNOISEPanel(bpy.types.Panel):
     bl_label = "D-NOISE: AI Denoiser"
     bl_space_type = "PROPERTIES"
@@ -220,26 +237,39 @@ class DNOISEPreferences(bpy.types.AddonPreferences):
         layout = self.layout
         row = layout.row()
         row.scale_y = 1.5
+
+        # IN THE PROCESS OF INSTALLATION
         if os.path.exists("DNOISE_OptiXBinaries.zip"):
-            row.operator("dnoise.install_binaries",
-                         text="Install OptiX Binaries",
-                         icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+            row.operator("dnoise.remove_binaries",
+                         text="Remove OptiX Binaries",
+                         icon="X")
+            row = layout.row()
             row.label(icon='LOAD_FACTORY',
                       text="Installing OptiX binaries... {:.1f}%".format(urlutils.getprogress()))
 
+        # BINARIES ARE NOT INSTALLED
         elif not (os.path.exists("OptixDenoiser//Denoiser.exe")):
             row.operator("dnoise.install_binaries",
                          text="Install OptiX Binaries",
                          icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+            row = layout.row()
             row.label(icon='ERROR',
                       text="OptiX binaries are not installed!")
-            
+
+        # BINARIES ARE INSTALLED
         else:
-            row.operator("dnoise.install_binaries",
+            col = layout.column(align=True)
+            col.scale_y = 1.5
+            col.operator("dnoise.install_binaries",
                          text="Reinstall OptiX Binaries",
                          icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+            col.operator("dnoise.remove_binaries",
+                         text="Remove OptiX Binaries",
+                         icon='X')
+            row = layout.row()
             row.label(icon='FILE_TICK',
                       text="OptiX binaries are installed!")
+
 #
 # UI Implementations
 #
@@ -271,6 +301,7 @@ def register():
     bpy.utils.register_class(QuickDenoise)
     bpy.utils.register_class(ToggleDnoiseExport)
     bpy.utils.register_class(InstallOptiXBinaries)
+    bpy.utils.register_class(RemoveOptiXBinaries)
     bpy.utils.register_class(DNOISEPanel)
     bpy.utils.register_class(DNOISEPreferences)
 
@@ -298,6 +329,7 @@ def unregister():
     bpy.utils.unregister_class(QuickDenoise)
     bpy.utils.unregister_class(ToggleDnoiseExport)
     bpy.utils.unregister_class(InstallOptiXBinaries)
+    bpy.utils.unregister_class(RemoveOptiXBinaries)
     bpy.utils.unregister_class(DNOISEPanel)
     bpy.utils.unregister_class(DNOISEPreferences)
 
