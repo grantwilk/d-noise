@@ -159,8 +159,8 @@ def setactiveimage_nocontext(imagekey):
 def setcolorspace(imagekey, fileformat):
     """Sets the colorspace settings of the specified Blender image"""
     if imageexists(imagekey):
-        if fileformat == 'OPEN_EXR' or fileformat == "OPEN_EXR_MULTILAYER" or fileformat == 'HDR':
-            bpy.data.images[imagekey].use_view_as_render = True
+        bpy.data.images[imagekey].use_view_as_render = True
+        if fileformat == 'OPEN_EXR' or fileformat == 'OPEN_EXR_MULTILAYER' or fileformat == 'HDR':
             # try-except to prevent custom OCIOs from throwing errors
             try:
                 bpy.data.images[imagekey].colorspace_settings.name = 'Linear'
@@ -184,13 +184,13 @@ def imageexists(imagekey):
 def checkformat(file_format, extension_dict):
     """Checks to make sure the given file format is in the specified extension dictionary, if not, default to PNG"""
     if file_format in extension_dict:
-        file_format = extension_dict[file_format]
+        file_extension = extension_dict[file_format]
     else:
         print(">> D-NOISE ERROR: File output format {0} is not supported by D-NOISE. Defaulting to 'PNG'.".format(file_format))
         bpy.context.scene.render.image_settings.file_format = 'PNG'
-        file_format = extension_dict['PNG']
+        file_extension = extension_dict['PNG']
 
-    return file_format
+    return file_extension
 
 #
 # RENDER LAYER FUNCTIONS
