@@ -87,7 +87,7 @@ def addnodes(output_dir, nodes):
     file_output.file_slots.new('Normal')
     file_output.file_slots.new('Albedo')
     file_output.show_options = False
-    file_output.format.file_format = 'EXR'
+    file_output.format.file_format = 'OPEN_EXR'
     file_output.format.color_depth = '32'
     file_output.label = '[D-NOISE] File Output'
     file_output.location = 420, -100
