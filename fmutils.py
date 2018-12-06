@@ -31,6 +31,8 @@ import shutil
 def save(directory, filename, image):
     """Saves a Blender image file to an external directory"""
     if image.name == 'Render Result':
+        bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR'
+        bpy.context.scene.render.image_settings.color_depth = '32'
         image.save_render(filepath=os.path.join(directory, filename))
     elif image.name != 'D-NOISE Export':
         image.pack()
@@ -157,7 +159,8 @@ def setactiveimage_nocontext(imagekey):
 def setcolorspace(imagekey, fileformat):
     """Sets the colorspace settings of the specified Blender image"""
     if imageexists(imagekey):
-        if fileformat == 'exr' or fileformat == 'hdr':
+        if fileformat == 'OPEN_EXR' or fileformat == "OPEN_EXR_MULTILAYER" or fileformat == 'HDR':
+            bpy.data.images[imagekey].use_view_as_render = True
             # try-except to prevent custom OCIOs from throwing errors
             try:
                 bpy.data.images[imagekey].colorspace_settings.name = 'Linear'
