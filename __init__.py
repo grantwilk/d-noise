@@ -25,7 +25,7 @@ bl_info = {
     "version": (1, 0, 0),
     "location": "UV/Image Editor and Render Layers",
     "category": "Render",
-    "description": "An game changing AI-accelerated denoiser for Blender.",
+    "description": "A game changing AI-accelerated denoiser for Blender.",
     "wiki_url": "https://remingtongraphics.net/tools/d-noise/",
     "tracker_url": "https://github.com/grantwilk/DNOISE"
 }
