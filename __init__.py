@@ -25,7 +25,7 @@ bl_info = {
     "version": (1, 0, 0),
     "location": "UV/Image Editor and Render Layers",
     "category": "Render",
-    "description": "An AI-accelerated denoiser for Blender.",
+    "description": "An game changing AI-accelerated denoiser for Blender.",
     "wiki_url": "https://remingtongraphics.net/tools/d-noise/",
     "tracker_url": "https://github.com/grantwilk/DNOISE"
 }
@@ -144,6 +144,13 @@ def togglenodes(self=None, context=None):
         fmutils.disablepasses(active_layer)
         DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
+
+def loaddnoisesettings(placeholder = None):
+    global DNOISE_NODES, SCRIPT_DIR
+    active_layer = bpy.context.scene.render.layers.active.name
+
+    togglednoise()
+    togglenodes()
 
 #
 # Operators
@@ -307,6 +314,9 @@ def register():
     bpy.utils.register_class(DNOISEPanel)
     bpy.utils.register_class(DNOISEPreferences)
 
+    # append app handlers
+    bpy.app.handlers.load_post.append(loaddnoisesettings)
+
     # register properties
     bpy.types.Scene.EnableDNOISE = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
     bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
@@ -334,6 +344,9 @@ def unregister():
     bpy.utils.unregister_class(RemoveOptiXBinaries)
     bpy.utils.unregister_class(DNOISEPanel)
     bpy.utils.unregister_class(DNOISEPreferences)
+
+    # remove app handlers
+    bpy.app.handlers.load_post.remove(loaddnoisesettings)
 
     # clean out any past files from the script directory
     global SCRIPT_DIR, FORMAT_EXTENSIONS
