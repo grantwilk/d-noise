@@ -87,7 +87,7 @@ def runrenderdenoiser(placeholder=None):
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
     DENOISE_SOURCE = bpy.data.images['Render Result']
 
-    file_format = bpy.context.scene.render.image_settings.file_format
+    file_format = 'OPEN_EXR'
     file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
     source_name = 'source.{0}'.format(file_extension)
 
