@@ -31,9 +31,11 @@ import shutil
 def save(directory, filename, image):
     """Saves a Blender image file to an external directory"""
     if image.name == 'Render Result':
+        original_format = bpy.context.scene.render.image_settings.file_format
         bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR'
         bpy.context.scene.render.image_settings.color_depth = '32'
         image.save_render(filepath=os.path.join(directory, filename))
+        bpy.context.scene.render.image_settings.file_format = original_format
     elif image.name != 'D-NOISE Export':
         image.pack()
         image.filepath = os.path.join(directory, filename)

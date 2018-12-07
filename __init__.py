@@ -88,8 +88,8 @@ def runrenderdenoiser(placeholder=None):
     DENOISE_SOURCE = bpy.data.images['Render Result']
 
     file_format = bpy.context.scene.render.image_settings.file_format
-    file_format = fmutils.checkformat(file_format, FORMAT_EXTENSIONS)
-    source_name = 'source.{0}'.format(file_format)
+    file_extension = fmutils.checkformat(file_format, FORMAT_EXTENSIONS)
+    source_name = 'source.{0}'.format(file_extension)
 
     fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
     optix.denoise(SCRIPT_DIR, source_name)
