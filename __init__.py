@@ -34,6 +34,7 @@ import bpy
 import os
 import shutil
 import bpy.utils.previews
+from bpy.app.handlers import persistent
 from . import optix, fmutils, urlutils
 
 # directory of the script files
@@ -145,12 +146,26 @@ def togglenodes(self=None, context=None):
         DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
+
+@persistent
 def loaddnoisesettings(placeholder = None):
     global DNOISE_NODES, SCRIPT_DIR
     active_layer = bpy.context.scene.render.layers.active.name
 
-    togglednoise()
-    togglenodes()
+    if bpy.context.scene.EnableDNOISE:
+        # bpy.app.handlers.render_init.append(swaptorender)
+        bpy.app.handlers.render_complete.append(runrenderdenoiser)
+        bpy.app.handlers.render_write.append(runanimdenoiser)
+
+    if bpy.context.scene.EnableExtraPasses:
+        fmutils.enablepasses(active_layer)
+        optix.cleannodes()
+        DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
+
+    else:
+        fmutils.disablepasses(active_layer)
+        DNOISE_NODES = optix.removenodes(DNOISE_NODES)
+        optix.cleannodes()
 
 #
 # Operators
@@ -346,7 +361,8 @@ def unregister():
     bpy.utils.unregister_class(DNOISEPreferences)
 
     # remove app handlers
-    bpy.app.handlers.load_post.remove(loaddnoisesettings)
+    if loaddnoisesettings in bpy.app.handlers.load_post:
+        bpy.app.handlers.load_post.remove(loaddnoisesettings)
 
     # clean out any past files from the script directory
     global SCRIPT_DIR, FORMAT_EXTENSIONS
