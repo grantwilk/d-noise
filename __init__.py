@@ -122,11 +122,11 @@ def swaptorender(placeholder=None):
 def togglednoise(self=None, context=None):
     """Toggles the D-NOISE denosier for rendering single frames and animations"""
     if not bpy.context.scene.EnableDNOISE:
-        bpy.app.handlers.render_init.remove(swaptorender)
+        #bpy.app.handlers.render_init.remove(swaptorender)
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
         bpy.app.handlers.render_write.remove(runanimdenoiser)
     else:
-        bpy.app.handlers.render_init.append(swaptorender)
+        #bpy.app.handlers.render_init.append(swaptorender)
         bpy.app.handlers.render_complete.append(runrenderdenoiser)
         bpy.app.handlers.render_write.append(runanimdenoiser)
 
