@@ -21,9 +21,9 @@ with D-NOISE: AI-Acclerated Denoiser.  If not, see <https://www.gnu.org/licenses
 bl_info = {
     "name": "D-NOISE: AI-Accelerated Denoiser",
     "author": "Grant Wilk",
-    "blender": (2, 7),
+    "blender": (2, 79),
     "version": (1, 0, 0),
-    "location": "UV/Image Editor",
+    "location": "UV/Image Editor and Render Layers",
     "category": "Render",
     "description": "An AI-accelerated denoiser for Blender.",
     "wiki_url": "https://remingtongraphics.net/tools/d-noise/",
