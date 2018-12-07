@@ -71,7 +71,7 @@ def runpostdenoiser():
 
     if DENOISE_SOURCE is not None and DENOISE_SOURCE.name is not 'D-NOISE Export':
         file_format = 'OPEN_EXR'
-        file_extension = fmutils.checkformat(file_format, FORMAT_EXTENSIONS)
+        file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
         source_name = 'source.{0}'.format(file_extension)
         fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
 
@@ -88,7 +88,7 @@ def runrenderdenoiser(placeholder=None):
     DENOISE_SOURCE = bpy.data.images['Render Result']
 
     file_format = bpy.context.scene.render.image_settings.file_format
-    file_extension = fmutils.checkformat(file_format, FORMAT_EXTENSIONS)
+    file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
     source_name = 'source.{0}'.format(file_extension)
 
     fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
