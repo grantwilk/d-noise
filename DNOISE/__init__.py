@@ -122,6 +122,20 @@ def runanimdenoiser(placeholder=None):
 
 def swaptorender(placeholder=None):
     """Switches any image editors with the D-NOISE Export back to the Render Result before rendering"""
+
+    """
+    for i in range(len(bpy.data.window_managers['WinMan'].windows[0].screen.areas)):
+        current_type = bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces[0].type
+
+        if len(bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces) > 1:
+            last_type = bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces[1].type
+        else:
+            last_type = None
+
+        if current_type == "IMAGE_EDITOR" and last_type != "VIEW_3D":
+            bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].type = "VIEW_3D"
+    """
+
     for area in bpy.data.window_managers['WinMan'].windows[0].screen.areas:
         if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'D-NOISE Export':
             area.spaces[0].image = bpy.data.images['Render Result']
@@ -130,11 +144,11 @@ def swaptorender(placeholder=None):
 def togglednoise(self=None, context=None):
     """Toggles the D-NOISE denosier for rendering single frames and animations"""
     if not bpy.context.scene.EnableDNOISE:
-        #bpy.app.handlers.render_init.remove(swaptorender)
+        bpy.app.handlers.render_init.remove(swaptorender)
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
         bpy.app.handlers.render_write.remove(runanimdenoiser)
     else:
-        #bpy.app.handlers.render_init.append(swaptorender)
+        bpy.app.handlers.render_init.append(swaptorender)
         bpy.app.handlers.render_complete.append(runrenderdenoiser)
         bpy.app.handlers.render_write.append(runanimdenoiser)
 
@@ -161,7 +175,7 @@ def loaddnoisesettings(placeholder = None):
     active_layer = bpy.context.scene.render.layers.active.name
 
     if bpy.context.scene.EnableDNOISE:
-        # bpy.app.handlers.render_init.append(swaptorender)
+        bpy.app.handlers.render_init.append(swaptorender)
         bpy.app.handlers.render_complete.append(runrenderdenoiser)
         bpy.app.handlers.render_write.append(runanimdenoiser)
 
