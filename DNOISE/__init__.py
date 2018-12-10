@@ -22,7 +22,7 @@ bl_info = {
     "name": "D-NOISE: AI-Accelerated Denoiser",
     "author": "Grant Wilk",
     "blender": (2, 79),
-    "version": (1, 0, 0),
+    "version": (1, 1, 0),
     "location": "UV/Image Editor and Render Layers",
     "category": "Render",
     "description": "A game changing AI-accelerated denoiser for Blender.",
@@ -70,11 +70,18 @@ def runpostdenoiser():
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
     DENOISE_SOURCE = bpy.context.space_data.image
 
-    if DENOISE_SOURCE is not None and DENOISE_SOURCE.name is not 'D-NOISE Export':
-        file_format = 'OPEN_EXR'
-        file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
-        source_name = 'source.{0}'.format(file_extension)
-        fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
+    if DENOISE_SOURCE is not None and DENOISE_SOURCE.name != 'D-NOISE Export':
+        if DENOISE_SOURCE.name is 'Render Result':
+            file_format = 'OPEN_EXR'
+            file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
+            source_name = 'source.{0}'.format(file_extension)
+            fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
+
+        else:
+            file_format = DENOISE_SOURCE.file_format
+            file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
+            source_name = 'source.{0}'.format(file_extension)
+            fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
 
         optix.beautydenoise(SCRIPT_DIR, optix.gethdr(), source_name)
         fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
