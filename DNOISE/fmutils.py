@@ -36,11 +36,11 @@ def save(directory, filename, image):
         bpy.context.scene.render.image_settings.color_depth = '32'
         image.save_render(filepath=os.path.join(directory, filename))
         bpy.context.scene.render.image_settings.file_format = original_format
-    elif image.name != 'D-NOISE Export':
-        image.pack()
+    else:
+        oldfilepath = os.path.join(directory, filename)
         image.filepath = os.path.join(directory, filename)
         image.save()
-        image.unpack()
+        image.filepath = oldfilepath
 
 
 def load(directory, filename, imagekey):
@@ -113,6 +113,9 @@ def truncate(path):
     else:
         truncated = path
     return truncated
+
+def reversetruncate(path):
+    """"""
 
 
 def exapandlocal(path):
