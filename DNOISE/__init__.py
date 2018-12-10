@@ -212,7 +212,7 @@ class ToggleDnoiseExport(bpy.types.Operator):
     def execute(self, context):
         current_image = bpy.context.space_data.image
 
-        if DENOISE_SOURCE is not None:
+        if DENOISE_SOURCE is not None and 'D-NOISE Export' in bpy.data.images:
             if (current_image == bpy.data.images['D-NOISE Export']) and (DENOISE_SOURCE.name in bpy.data.images):
                 bpy.context.space_data.image = DENOISE_SOURCE
 
