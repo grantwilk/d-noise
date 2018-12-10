@@ -75,6 +75,7 @@ def getmostrecent(directory):
 
 
 def unzip(directory, filename):
+    """Unzips a .zip file to a local directory and deletes it when its extracted"""
     file_dir = os.path.join(directory, filename)
     with zipfile.ZipFile(file_dir, 'r') as zip_ref:
         zip_ref.extractall("")
@@ -84,6 +85,7 @@ def unzip(directory, filename):
 
 
 def removeoptixbin(directory):
+    """Removes all remnants of the OptiX binaries."""
     os.chdir(directory)
     if os.path.exists("DNOISE_OptiXBinaries.zip"):
         os.remove("DNOISE_OptiXBinaries.zip")
@@ -216,6 +218,7 @@ def disablepasses(renderlayer):
 #
 
 def forceUIUpdate(area_type):
+    """Forces the UI to update in all areas of a specified type"""
     for window in bpy.data.window_managers['WinMan'].windows:
         for area in window.screen.areas:
             if area.type == area_type:

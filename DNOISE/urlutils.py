@@ -33,6 +33,7 @@ CHUNK_SIZE = 1024000 #bytes = 1MB
 DOWNLOAD_PERCENT = 0
 
 def downloadbin():
+    """Downloads and extracts the OptiX binaries on a separate thread"""
     global SCRIPT_DIR, CHUNK_SIZE, DOWNLOAD_PERCENT, FILE_NAME, URL
     global FILE_SIZE
     def download():
@@ -65,6 +66,7 @@ def downloadbin():
 
 
 def updateprogress(chunkcount, filesize):
+    """Calculates how far along the OptiX binaries download is and then forces the User Prefs areas to update"""
     global CHUNK_SIZE, DOWNLOAD_PERCENT
     downloadsize = chunkcount * CHUNK_SIZE
     DOWNLOAD_PERCENT = (downloadsize / filesize) * 100
@@ -75,5 +77,6 @@ def updateprogress(chunkcount, filesize):
 
 
 def getprogress():
+    """Returns the percent downloaded"""
     global DOWNLOAD_PERCENT
     return DOWNLOAD_PERCENT

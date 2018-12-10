@@ -156,6 +156,7 @@ def togglenodes(self=None, context=None):
 
 @persistent
 def loaddnoisesettings(placeholder = None):
+    """Loads and applys the D-NOISE settings saved in a .blend file"""
     global DNOISE_NODES, SCRIPT_DIR
     active_layer = bpy.context.scene.render.layers.active.name
 
