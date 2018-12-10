@@ -37,10 +37,7 @@ def save(directory, filename, image):
         image.save_render(filepath=os.path.join(directory, filename))
         bpy.context.scene.render.image_settings.file_format = original_format
     else:
-        oldfilepath = os.path.join(directory, filename)
-        image.filepath = os.path.join(directory, filename)
-        image.save()
-        image.filepath = oldfilepath
+        shutil.copyfile(image.filepath, os.path.join(directory, filename))
 
 
 def load(directory, filename, imagekey):
@@ -113,9 +110,6 @@ def truncate(path):
     else:
         truncated = path
     return truncated
-
-def reversetruncate(path):
-    """"""
 
 
 def exapandlocal(path):
