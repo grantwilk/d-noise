@@ -164,8 +164,8 @@ def setactiveimage_nocontext(imagekey):
 def setcolorspace(imagekey, fileformat):
     """Sets the colorspace settings of the specified Blender image"""
     if imageexists(imagekey):
-        bpy.data.images[imagekey].use_view_as_render = True
         if fileformat == 'OPEN_EXR' or fileformat == 'OPEN_EXR_MULTILAYER' or fileformat == 'HDR':
+            bpy.data.images[imagekey].use_view_as_render = True
             # try-except to prevent custom OCIOs from throwing errors
             try:
                 bpy.data.images[imagekey].colorspace_settings.name = 'Linear'
