@@ -30,11 +30,11 @@ FILE_NAME = "DNOISE_OptiXBinaries.zip"
 
 SCRIPT_DIR = os.path.dirname(__file__)
 CHUNK_SIZE = 1024000 #bytes = 1MB
-FILE_SIZE = int(request.urlopen(URL).info().get('Content-Length'))
 DOWNLOAD_PERCENT = 0
 
 def downloadbin():
     global SCRIPT_DIR, CHUNK_SIZE, DOWNLOAD_PERCENT, FILE_NAME, URL
+    global FILE_SIZE
     def download():
         os.chdir(SCRIPT_DIR)
 
@@ -42,6 +42,7 @@ def downloadbin():
             shutil.rmtree("OptiXDenoiser")
 
         chunkcount = 0
+        filesize = int(request.urlopen(URL).info().get('Content-Length'))
 
         response = urlopen(URL)
         with open(FILE_NAME, 'wb') as f:
@@ -51,7 +52,7 @@ def downloadbin():
                     break
                 f.write(chunk)
                 chunkcount += 1
-                updateprogress(chunkcount)
+                updateprogress(chunkcount, filesize)
 
         with zipfile.ZipFile(FILE_NAME, 'r') as zip_ref:
             zip_ref.extractall("")
@@ -63,10 +64,10 @@ def downloadbin():
     t.start()
 
 
-def updateprogress(chunkcount):
-    global CHUNK_SIZE, FILE_SIZE, DOWNLOAD_PERCENT
+def updateprogress(chunkcount, filesize):
+    global CHUNK_SIZE, DOWNLOAD_PERCENT
     downloadsize = chunkcount * CHUNK_SIZE
-    DOWNLOAD_PERCENT = (downloadsize / FILE_SIZE) * 100
+    DOWNLOAD_PERCENT = (downloadsize / filesize) * 100
     if DOWNLOAD_PERCENT > 100:
         DOWNLOAD_PERCENT = 100
 
