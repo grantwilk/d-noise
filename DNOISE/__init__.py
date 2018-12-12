@@ -71,7 +71,7 @@ def runpostdenoiser():
     DENOISE_SOURCE = bpy.context.space_data.image
 
     if DENOISE_SOURCE is not None and DENOISE_SOURCE.name != 'D-NOISE Export':
-        if DENOISE_SOURCE.name is 'Render Result':
+        if DENOISE_SOURCE.name == 'Render Result':
             file_format = 'OPEN_EXR'
             file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
             source_name = 'source.{0}'.format(file_extension)
