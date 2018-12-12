@@ -33,22 +33,23 @@ def denoise(directory, source_name):
     if bpy.context.scene.EnableExtraPasses:
         normal_name = getnormal(directory)
         albedo_name = getalbedo(directory)
-        fulldenoise(directory, gethdr(), source_name,  normal_name, albedo_name)
+        fulldenoise(directory, source_name,  normal_name, albedo_name, gethdr(), getblend())
     else:
-        beautydenoise(directory, gethdr(), source_name)
+        beautydenoise(directory, source_name, gethdr(),getblend())
 
 
-def beautydenoise(directory, hdr, source_name):
+def beautydenoise(directory, source_name, hdr, blend):
     """Runs OptiX standalone denoiser with information for a beauty pass"""
     os.chdir(directory)
-    os.system('.\OptiXDenoiser\Denoiser.exe -hdr {0} -i "{1}" -o "{1}"'.format(hdr, source_name))
+    os.system('.\OptiXDenoiser\Denoiser.exe -i "{0}" -o "{0}" -hdr {1} -b {2}'.format(source_name, hdr, blend))
 
 
-def fulldenoise(directory, hdr, source_name,  normal_name, albedo_name):
+
+def fulldenoise(directory, source_name,  normal_name, albedo_name, hdr, blend):
     """Runs OptiX standalone denoiser with information for a full denoising pass"""
     os.chdir(directory)
     convertnormals(directory, normal_name)
-    os.system('.\OptiXDenoiser\Denoiser.exe -hdr {0} -i "{1}" -o "{1}" -n "{2}" -a "{3}"'.format(hdr, source_name, normal_name, albedo_name))
+    os.system('.\OptiXDenoiser\Denoiser.exe  -i "{0}" -o "{0}" -n "{1}" -a "{2}" -hdr {3} -b {4}'.format(source_name, normal_name, albedo_name, hdr, blend))
 
 #
 # Node Functions
@@ -164,6 +165,11 @@ def getalbedo(directory):
 def gethdr():
     """Returns whether or not HDR training data is enabled"""
     return 1 if bpy.context.scene.EnableHDRData else 0
+
+
+def getblend():
+    """Returns the float presented by the D-NOISE blend property"""
+    return bpy.context.scene.DNOISEBlend
 
 #
 # NORMAL FUNCTIONS

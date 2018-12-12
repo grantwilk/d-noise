@@ -83,7 +83,7 @@ def runpostdenoiser():
             source_name = 'source.{0}'.format(file_extension)
             fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
 
-        optix.beautydenoise(SCRIPT_DIR, optix.gethdr(), source_name)
+        optix.beautydenoise(SCRIPT_DIR, source_name, optix.gethdr(), optix.getblend())
         fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
         fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
         fmutils.setcolorspace('D-NOISE Export', file_format)
@@ -272,6 +272,8 @@ class DNOISEPanel(bpy.types.Panel):
         row = layout.row()
         row.prop(bpy.context.scene, "EnableHDRData", text="Use HDR Training")
         row.prop(bpy.context.scene, "EnableExtraPasses", text="Use Extra Passes")
+        row = layout.row()
+        row.prop(bpy.context.scene, "DNOISEBlend", text = "D-NOISE Blend", slider=True)
 
 
 class DNOISEPreferences(bpy.types.AddonPreferences):
@@ -358,7 +360,7 @@ def register():
     bpy.types.Scene.EnableDNOISE = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
     bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
     bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(update=togglenodes, description="Enabling extra passes will help maintain fine detail in texures, but may cause artifacts.")
-
+    bpy.types.Scene.DNOISEBlend = bpy.props.FloatProperty(description='Blend the denoised image with the undenoised image. A value of 1 will show the undenoised image.', default=0, min=0, max=1)
     # register variables
     global CUSTOM_ICONS
     CUSTOM_ICONS = bpy.utils.previews.new()
