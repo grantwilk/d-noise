@@ -31,11 +31,11 @@ import shutil
 def save(directory, filename, image):
     """Saves a Blender image file to an external directory"""
     if image.name == 'Render Result':
-        original_format = bpy.context.scene.render.image_settings.file_format
-        bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR'
-        bpy.context.scene.render.image_settings.color_depth = '32'
+        #original_format = bpy.context.scene.render.image_settings.file_format
+        #bpy.context.scene.render.image_settings.file_format = 'OPEN_EXR'
+        #bpy.context.scene.render.image_settings.color_depth = '32'
         image.save_render(filepath=os.path.join(directory, filename))
-        bpy.context.scene.render.image_settings.file_format = original_format
+        #bpy.context.scene.render.image_settings.file_format = original_format
     else:
         shutil.copyfile(image.filepath, os.path.join(directory, filename))
 
@@ -47,8 +47,6 @@ def load(directory, filename, imagekey):
 
     bpy.data.images.load(filepath=os.path.join(directory, filename))
     bpy.data.images[filename].name = imagekey
-    bpy.data.images[imagekey].pack()
-
     fileformat = os.path.splitext(filename)[1]
     setcolorspace(imagekey, fileformat)
 
@@ -157,8 +155,8 @@ def setactiveimage_nocontext(imagekey):
 def setcolorspace(imagekey, fileformat):
     """Sets the colorspace settings of the specified Blender image"""
     if imageexists(imagekey):
-        linearFormats = ['OPEN_EXR', 'OPEN_EXR_MULTILAYER', 'HDR']
-        if fileformat in linearFormats:
+        linearformats = ['OPEN_EXR', 'OPEN_EXR_MULTILAYER', 'HDR']
+        if fileformat in linearformats:
             bpy.data.images[imagekey].use_view_as_render = True
             # try-except to prevent custom OCIOs from throwing errors
             try:

@@ -71,7 +71,7 @@ def runpostimgdenoiser():
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
 
     if DENOISE_SOURCE.name == 'Render Result':
-        file_format = 'OPEN_EXR'
+        file_format = bpy.context.scene.render.image_settings.file_format
         file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
         source_name = 'source.{0}'.format(file_extension)
         fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
@@ -86,7 +86,9 @@ def runpostimgdenoiser():
     fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
     fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
     fmutils.setcolorspace('D-NOISE Export', file_format)
+    bpy.data.images['D-NOISE Export'].update()
     fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+
 
 
 def runpostanimdenoiser():
@@ -118,7 +120,7 @@ def runrenderdenoiser(placeholder=None):
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
     DENOISE_SOURCE = bpy.data.images['Render Result']
 
-    file_format = 'OPEN_EXR'
+    file_format = bpy.context.scene.render.image_settings.file_format
     file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
     source_name = 'source.{0}'.format(file_extension)
 
@@ -127,6 +129,7 @@ def runrenderdenoiser(placeholder=None):
     fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
     fmutils.setactiveimage('D-NOISE Export')
     fmutils.setcolorspace('D-NOISE Export', file_format)
+    bpy.data.images['D-NOISE Export'].update()
     fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
