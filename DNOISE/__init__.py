@@ -66,17 +66,6 @@ FORMAT_EXTENSIONS = {'BMP': 'bmp',
 #
 
 
-def runpostdenoiser():
-    """Run the OptiX beauty denoiser from the UV/Image editor"""
-    global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
-    DENOISE_SOURCE = bpy.context.space_data.image
-    if DENOISE_SOURCE is not None and DENOISE_SOURCE.name != 'D-NOISE Export':
-        if DENOISE_SOURCE.source == 'FILE':
-            runpostimgdenoiser()
-        elif DENOISE_SOURCE.source == 'SEQUENCE':
-            runpostanimdenoiser()
-
-
 def runpostimgdenoiser():
     """Run the OptiX beauty denoiser on the image loaded in the UV/Image editor"""
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
@@ -233,7 +222,16 @@ class QuickDenoise(bpy.types.Operator):
     bl_label = "D-NOISE"
 
     def execute(self, context):
-        runpostdenoiser()
+        global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
+        DENOISE_SOURCE = bpy.context.space_data.image
+
+        if DENOISE_SOURCE is not None and DENOISE_SOURCE.name != 'D-NOISE Export':
+            source = DENOISE_SOURCE.source
+            if source == 'FILE' or source == 'VIEWER':
+                runpostimgdenoiser()
+            elif source == 'SEQUENCE':
+                runpostanimdenoiser()
+
         return {'FINISHED'}
 
 
@@ -442,9 +440,6 @@ def unregister():
     bpy.types.IMAGE_HT_header.remove(appendto_image_ht_header)
 
     # unregister render process integrations
-    if runpostdenoiser in bpy.app.handlers.render_complete:
-        bpy.app.handlers.render_complete.remove(runpostdenoiser)
-
     if runrenderdenoiser in bpy.app.handlers.render_complete:
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
 
