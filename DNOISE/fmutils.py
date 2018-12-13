@@ -114,6 +114,12 @@ def truncate(path):
     return truncated
 
 
+def truncateext(filename):
+    """Returns the file extension of a filename"""
+    truncated = filename[filename.rfind(".")+1:]
+    return truncated
+
+
 def exapandlocal(path):
     """Replaces the // at the beginning of a local file path with the full file path"""
     if path[:2] == "//":
@@ -121,15 +127,6 @@ def exapandlocal(path):
     else:
         expanded = path
     return expanded
-
-
-def filetruncate(filename):
-    """Returns a filename with all data removed after the last period -- e.g. myimage.png => myimage"""
-    if not filename[-1] == ".":
-        truncated = filename[:filename.rfind(".")]
-    else:
-        truncated = filename
-    return truncated
 
 
 #

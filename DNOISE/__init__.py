@@ -33,6 +33,7 @@ bl_info = {
 import bpy
 import os
 import shutil
+import threading
 import bpy.utils.previews
 from bpy.app.handlers import persistent
 from . import optix, fmutils, urlutils
@@ -69,25 +70,58 @@ def runpostdenoiser():
     """Run the OptiX beauty denoiser from the UV/Image editor"""
     global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
     DENOISE_SOURCE = bpy.context.space_data.image
-
     if DENOISE_SOURCE is not None and DENOISE_SOURCE.name != 'D-NOISE Export':
-        if DENOISE_SOURCE.name == 'Render Result':
-            file_format = 'OPEN_EXR'
-            file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
-            source_name = 'source.{0}'.format(file_extension)
-            fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
+        if DENOISE_SOURCE.source == 'FILE':
+            runpostimgdenoiser()
+        elif DENOISE_SOURCE.source == 'SEQUENCE':
+            runpostanimdenoiser()
 
-        else:
-            file_format = DENOISE_SOURCE.file_format
-            file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
-            source_name = 'source.{0}'.format(file_extension)
-            fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
 
-        optix.beautydenoise(SCRIPT_DIR, source_name, optix.gethdr(), optix.getblend())
-        fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
-        fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
-        fmutils.setcolorspace('D-NOISE Export', file_format)
-        fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+def runpostimgdenoiser():
+    """Run the OptiX beauty denoiser on the image loaded in the UV/Image editor"""
+    global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
+
+    if DENOISE_SOURCE.name == 'Render Result':
+        file_format = 'OPEN_EXR'
+        file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
+        source_name = 'source.{0}'.format(file_extension)
+        fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
+
+    else:
+        file_format = DENOISE_SOURCE.file_format
+        file_extension = fmutils.getextension(file_format, FORMAT_EXTENSIONS)
+        source_name = 'source.{0}'.format(file_extension)
+        fmutils.save(SCRIPT_DIR, source_name, DENOISE_SOURCE)
+
+    optix.beautydenoise(SCRIPT_DIR, source_name, optix.gethdr(), optix.getblend())
+    fmutils.load(SCRIPT_DIR, source_name, 'D-NOISE Export')
+    fmutils.setactiveimage('D-NOISE Export', bpy.context.space_data)
+    fmutils.setcolorspace('D-NOISE Export', file_format)
+    fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+
+
+def runpostanimdenoiser():
+    """Run the OptiX beauty denoiser from the movie clip editor"""
+    global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
+
+    def denoiseanim():
+        orig_directory = fmutils.truncate(DENOISE_SOURCE.filepath)
+        os.chdir(orig_directory)
+        if not os.path.isdir("D-NOISE Export"):
+            os.mkdir(os.path.join(orig_directory, "D-NOISE Export"))
+        imagefiles = sorted(os.listdir())
+        print(imagefiles)
+
+        for filename in imagefiles:
+            if fmutils.truncateext(filename) in FORMAT_EXTENSIONS.values():
+                shutil.copyfile(os.path.join(orig_directory, filename), os.path.join(SCRIPT_DIR, filename))
+                optix.beautydenoise(SCRIPT_DIR, filename, optix.gethdr(), optix.getblend())
+                shutil.copyfile(os.path.join(SCRIPT_DIR, filename),
+                                os.path.join(os.path.join(orig_directory, "D-NOISE Export"), filename))
+                fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+
+    t = threading.Thread(target=denoiseanim)
+    t.start()
 
 
 def runrenderdenoiser(placeholder=None):
@@ -273,7 +307,7 @@ class DNOISEPanel(bpy.types.Panel):
         row.prop(bpy.context.scene, "EnableHDRData", text="Use HDR Training")
         row.prop(bpy.context.scene, "EnableExtraPasses", text="Use Extra Passes")
         row = layout.row()
-        row.prop(bpy.context.scene, "DNOISEBlend", text = "D-NOISE Blend", slider=True)
+        row.prop(bpy.context.scene, "DNOISEBlend", text="D-NOISE Blend", slider=True)
 
 
 class DNOISEPreferences(bpy.types.AddonPreferences):
