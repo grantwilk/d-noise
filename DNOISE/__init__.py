@@ -149,6 +149,11 @@ def runanimdenoiser(placeholder=None):
 def swaptorender(placeholder=None):
     """Switches any image editors with the D-NOISE Export back to the Render Result before rendering"""
 
+    for area in bpy.data.window_managers['WinMan'].windows[0].screen.areas:
+        if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'D-NOISE Export':
+            area.spaces[0].image = bpy.data.images['Render Result']
+
+    #for closing out of extra render windows
     """
     for i in range(len(bpy.data.window_managers['WinMan'].windows[0].screen.areas)):
         current_type = bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces[0].type
@@ -159,22 +164,18 @@ def swaptorender(placeholder=None):
             last_type = None
 
         if current_type == "IMAGE_EDITOR" and last_type != "VIEW_3D":
-            bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].type = "VIEW_3D"
+            bpy.data.window_managers[0].windows[0].screen.areas[i].type = last_type
     """
-
-    for area in bpy.data.window_managers['WinMan'].windows[0].screen.areas:
-        if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'D-NOISE Export':
-            area.spaces[0].image = bpy.data.images['Render Result']
 
 
 def togglednoise(self=None, context=None):
     """Toggles the D-NOISE denosier for rendering single frames and animations"""
     if not bpy.context.scene.EnableDNOISE:
-        bpy.app.handlers.render_init.remove(swaptorender)
+        #bpy.app.handlers.render_pre.remove(swaptorender)
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
         bpy.app.handlers.render_write.remove(runanimdenoiser)
     else:
-        bpy.app.handlers.render_init.append(swaptorender)
+        #bpy.app.handlers.render_pre.append(swaptorender)
         bpy.app.handlers.render_complete.append(runrenderdenoiser)
         bpy.app.handlers.render_write.append(runanimdenoiser)
 
@@ -380,6 +381,8 @@ def appendto_image_ht_header(self, context):
 
 
 def register():
+    global SCRIPT_DIR, FORMAT_EXTENSIONS, CUSTOM_ICONS
+
     # register classes
     bpy.utils.register_class(QuickDenoise)
     bpy.utils.register_class(ToggleDnoiseExport)
@@ -392,12 +395,33 @@ def register():
     bpy.app.handlers.load_post.append(loaddnoisesettings)
 
     # register properties
-    bpy.types.Scene.EnableDNOISE = bpy.props.BoolProperty(update=togglednoise, description="Denoise the rendered image using D-NOISE.")
-    bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
-    bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(update=togglenodes, description="Enabling extra passes will help maintain fine detail in texures, but may cause artifacts.")
-    bpy.types.Scene.DNOISEBlend = bpy.props.FloatProperty(description='Blend the denoised image with the undenoised image. A value of 1 will show the undenoised image.', default=0, min=0, max=1)
+    bpy.types.Scene.EnableDNOISE = bpy.props.BoolProperty(
+        update=togglednoise,
+        description="Denoise the rendered image using D-NOISE.")
+
+    bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(
+        description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
+
+    bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(
+        update=togglenodes,
+        description="Enabling extra passes will help maintain fine detail in texures, but may cause artifacts.")
+
+    bpy.types.Scene.DNOISEBlend = bpy.props.FloatProperty(
+        description='Blend the denoised image with the undenoised image. A value of 1 will show the undenoised image.',
+        default=0,
+        min=0,
+        max=1)
+
+    #for implementing a custom filepath for optix binaries
+    """
+    bpy.types.Scene.OptiXBinaryFilepath = bpy.props.StringProperty(
+        name = "OptiX Binaries Path",
+        description="The folder containing the OptiX Binaries.",
+        subtype='DIR_PATH',
+        default=SCRIPT_DIR)
+    """
+
     # register variables
-    global CUSTOM_ICONS
     CUSTOM_ICONS = bpy.utils.previews.new()
     icons_dir = os.path.join(os.path.dirname(__file__), "icon")
     CUSTOM_ICONS.load("dnoise_icon", os.path.join(icons_dir, "dnoise_icon.png"), 'IMAGE')
@@ -406,7 +430,6 @@ def register():
     bpy.types.IMAGE_HT_header.append(appendto_image_ht_header)
 
     # clean out any past files from the script directory
-    global SCRIPT_DIR, FORMAT_EXTENSIONS
     fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
