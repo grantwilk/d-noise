@@ -61,6 +61,8 @@ FORMAT_EXTENSIONS = {'BMP': 'bmp',
                      'HDR': 'hdr',
                      'TIFF': 'tif'}
 
+SEQUENCE_TEXT = "D-NOISE Sequence"
+
 #
 # Denoiser Functions
 #
@@ -90,26 +92,37 @@ def runpostimgdenoiser():
     fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
-
 def runpostanimdenoiser():
     """Run the OptiX beauty denoiser from the movie clip editor"""
-    global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS
 
     def denoiseanim():
+        global DENOISE_SOURCE, SCRIPT_DIR, FORMAT_EXTENSIONS, SEQUENCE_TEXT
         orig_directory = fmutils.truncate(DENOISE_SOURCE.filepath)
         os.chdir(orig_directory)
         if not os.path.isdir("D-NOISE Export"):
             os.mkdir(os.path.join(orig_directory, "D-NOISE Export"))
-        imagefiles = sorted(os.listdir())
-        print(imagefiles)
+        files = sorted(os.listdir())
+        imagefiles = []
+
+        for filename in files:
+            if fmutils.truncateext(filename) in FORMAT_EXTENSIONS.values():
+                imagefiles.append(filename)
+
+        sequencelength = len(imagefiles)
+        sequenceprogress = 0
 
         for filename in imagefiles:
-            if fmutils.truncateext(filename) in FORMAT_EXTENSIONS.values():
-                shutil.copyfile(os.path.join(orig_directory, filename), os.path.join(SCRIPT_DIR, filename))
-                optix.beautydenoise(SCRIPT_DIR, filename, optix.gethdr(), optix.getblend())
-                shutil.copyfile(os.path.join(SCRIPT_DIR, filename),
-                                os.path.join(os.path.join(orig_directory, "D-NOISE Export"), filename))
-                fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+            shutil.copyfile(os.path.join(orig_directory, filename), os.path.join(SCRIPT_DIR, filename))
+            optix.beautydenoise(SCRIPT_DIR, filename, optix.gethdr(), optix.getblend())
+            shutil.copyfile(os.path.join(SCRIPT_DIR, filename),
+                            os.path.join(os.path.join(orig_directory, "D-NOISE Export"), filename))
+            fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+            sequenceprogress += 1
+            SEQUENCE_TEXT = "D-NOISE-ing Sequence... ({0}/{1})".format(sequenceprogress, sequencelength)
+            fmutils.forceUIUpdate("IMAGE_EDITOR")
+
+        if sequenceprogress == sequencelength:
+            SEQUENCE_TEXT = "D-NOISE Sequence"
 
     t = threading.Thread(target=denoiseanim)
     t.start()
@@ -365,10 +378,29 @@ def appendto_image_ht_header(self, context):
     layout = self.layout
     layout.separator()
     row = layout.row(align=True)
-    row.operator(
-        "dnoise.quick_denoise",
-        text="Quick D-NOISE",
-        icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+
+    if bpy.context.space_data.image.source == 'SEQUENCE':
+        row.operator(
+            "dnoise.quick_denoise",
+            text=SEQUENCE_TEXT,
+            icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+
+        # for implementing a cancel operation while denoising image sequences
+        """
+        if SEQUENCE_TEXT != 'D-NOISE Sequence':
+            row.operator(
+                "dnoise.quick_denoise",
+                text="",
+                icon='CANCEL')
+        """
+
+    else:
+        row.operator(
+            "dnoise.quick_denoise",
+            text="Quick D-NOISE",
+            icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+
+
     if bpy.context.space_data.image is not None and bpy.context.space_data.image.name == 'D-NOISE Export':
         row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
     else:
