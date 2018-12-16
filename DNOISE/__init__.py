@@ -21,9 +21,9 @@ with D-NOISE: AI-Acclerated Denoiser.  If not, see <https://www.gnu.org/licenses
 bl_info = {
     "name": "D-NOISE: AI-Accelerated Denoiser",
     "author": "Grant Wilk",
-    "blender": (2, 79),
+    "blender": (2, 80, 0),
     "version": (1, 1, 0),
-    "location": "UV/Image Editor and Render Layers",
+    "location": "UV/Image Editor and View Layers",
     "category": "Render",
     "description": "A game changing AI-accelerated denoiser for Blender.",
     "wiki_url": "https://remingtongraphics.net/tools/d-noise/",
@@ -309,7 +309,7 @@ class DNOISEPanel(bpy.types.Panel):
     bl_label = "D-NOISE: AI Denoiser"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-    bl_context = "render_layer"
+    bl_context = "view_layer"
     bl_options = {'DEFAULT_CLOSED'}
 
     def draw_header(self, context):
@@ -341,7 +341,7 @@ class DNOISEPreferences(bpy.types.AddonPreferences):
                          text="Remove OptiX Binaries",
                          icon="X")
             row = layout.row()
-            row.label(icon='LOAD_FACTORY',
+            row.label(icon='SETTINGS',
                       text="Installing OptiX binaries... {:.1f}%".format(urlutils.getprogress()))
 
         # BINARIES ARE NOT INSTALLED
@@ -411,17 +411,19 @@ def appendto_image_ht_header(self, context):
 # Registration / Unregistration
 #
 
+classes = (QuickDenoise,
+           ToggleDnoiseExport,
+           InstallOptiXBinaries,
+           RemoveOptiXBinaries,
+           DNOISEPanel,
+           DNOISEPreferences)
 
 def register():
     global SCRIPT_DIR, FORMAT_EXTENSIONS, CUSTOM_ICONS
 
-    # register classes
-    bpy.utils.register_class(QuickDenoise)
-    bpy.utils.register_class(ToggleDnoiseExport)
-    bpy.utils.register_class(InstallOptiXBinaries)
-    bpy.utils.register_class(RemoveOptiXBinaries)
-    bpy.utils.register_class(DNOISEPanel)
-    bpy.utils.register_class(DNOISEPreferences)
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
 
     # append app handlers
     bpy.app.handlers.load_post.append(loaddnoisesettings)
@@ -466,13 +468,9 @@ def register():
 
 
 def unregister():
-    # unregister classes
-    bpy.utils.unregister_class(QuickDenoise)
-    bpy.utils.unregister_class(ToggleDnoiseExport)
-    bpy.utils.unregister_class(InstallOptiXBinaries)
-    bpy.utils.unregister_class(RemoveOptiXBinaries)
-    bpy.utils.unregister_class(DNOISEPanel)
-    bpy.utils.unregister_class(DNOISEPreferences)
+    from bpy.utils import unregister_class
+    for cls in classes:
+        unregister_class(cls)
 
     # remove app handlers
     if loaddnoisesettings in bpy.app.handlers.load_post:
