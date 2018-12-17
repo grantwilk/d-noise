@@ -41,9 +41,6 @@ from . import optix, fmutils, urlutils
 # directory of the script files
 SCRIPT_DIR = os.path.dirname(__file__)
 
-# compositor nodes added by D-NOISE
-DNOISE_NODES = []
-
 # custom icons dictionary
 CUSTOM_ICONS = None
 
@@ -195,23 +192,22 @@ def togglednoise(self=None, context=None):
 
 def togglenodes(self=None, context=None):
     """Toggles the D-NOISE nodes in the compositor"""
-    global DNOISE_NODES, SCRIPT_DIR
+    global SCRIPT_DIR
     active_layer = bpy.context.scene.render.layers.active.name
 
     if bpy.context.scene.EnableExtraPasses:
         fmutils.enablepasses(active_layer)
         optix.cleannodes()
-        DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
+        optix.addnodes(SCRIPT_DIR)
     else:
         fmutils.disablepasses(active_layer)
-        DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
 
 @persistent
 def loaddnoisesettings(placeholder = None):
     """Loads and applys the D-NOISE settings saved in a .blend file"""
-    global DNOISE_NODES, SCRIPT_DIR
+    global SCRIPT_DIR
     active_layer = bpy.context.scene.render.layers.active.name
 
     if bpy.context.scene.EnableDNOISE:
@@ -222,11 +218,10 @@ def loaddnoisesettings(placeholder = None):
     if bpy.context.scene.EnableExtraPasses:
         fmutils.enablepasses(active_layer)
         optix.cleannodes()
-        DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
+        optix.addnodes(SCRIPT_DIR)
 
     else:
         fmutils.disablepasses(active_layer)
-        DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
 #
@@ -400,7 +395,6 @@ def appendto_image_ht_header(self, context):
             text="Quick D-NOISE",
             icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
 
-
     if bpy.context.space_data.image is not None and bpy.context.space_data.image.name == 'D-NOISE Export':
         row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
     else:
@@ -432,7 +426,7 @@ def register():
         description="Denoise the rendered image using D-NOISE.")
 
     bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(
-        description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
+        description="Enabling HDR training data producs a more accurate denoise for renders with high dynamic range.")
 
     bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(
         update=togglenodes,
@@ -444,7 +438,7 @@ def register():
         min=0,
         max=1)
 
-    #for implementing a custom filepath for optix binaries
+    # for implementing a custom filepath for optix binaries
     """
     bpy.types.Scene.OptiXBinaryFilepath = bpy.props.StringProperty(
         name = "OptiX Binaries Path",
