@@ -411,7 +411,7 @@ def register():
         description="Denoise the rendered image using D-NOISE.")
 
     bpy.types.Scene.EnableHDRData = bpy.props.BoolProperty(
-        description="Enabling HDR training data will produce a more accurate denoise for renders with high dynamic range.")
+        description="Enabling HDR training data produces a more accurate denoise for renders with high dynamic range.")
 
     bpy.types.Scene.EnableExtraPasses = bpy.props.BoolProperty(
         update=togglenodes,

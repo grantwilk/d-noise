@@ -62,26 +62,28 @@ def addnodes(output_dir):
 
     # create new render layer node
     render_layer = tree.nodes.new(type='CompositorNodeRLayers')
-    render_layer.layer = 'View Layer'
     render_layer.label = '[D-NOISE] Render Layers'
+    render_layer.layer = 'View Layer'
+
     render_layer.location = 0, 0
 
     # create first mix RGB node
     mix_emit_diffcol = tree.nodes.new('CompositorNodeMixRGB')
-    mix_emit_diffcol.blend_type = 'ADD'
     mix_emit_diffcol.label = '[D-NOISE] Add'
-    mix_emit_diffcol.location = 180, -120
+    mix_emit_diffcol.blend_type = 'ADD'
+    mix_emit_diffcol.location = 280, -120
     mix_emit_diffcol.hide = True
 
     # create first mix RGB node
     mix_last_subcol = tree.nodes.new('CompositorNodeMixRGB')
-    mix_last_subcol.blend_type = 'ADD'
     mix_last_subcol.label = '[D-NOISE] Add'
-    mix_last_subcol.location = 300, -120
+    mix_last_subcol.blend_type = 'ADD'
+    mix_last_subcol.location = 400, -120
     mix_last_subcol.hide = True
 
     # create file output node
     file_output = tree.nodes.new('CompositorNodeOutputFile')
+    file_output.label = '[D-NOISE] File Output'
     file_output.base_path = output_dir
     file_output.file_slots.clear()
     file_output.file_slots.new('Normal')
@@ -89,8 +91,7 @@ def addnodes(output_dir):
     file_output.show_options = False
     file_output.format.file_format = 'OPEN_EXR'
     file_output.format.color_depth = '32'
-    file_output.label = '[D-NOISE] File Output'
-    file_output.location = 420, -100
+    file_output.location = 520, -100
     file_output.hide = True
 
     # link nodes
