@@ -41,9 +41,6 @@ from . import optix, fmutils, urlutils
 # directory of the script files
 SCRIPT_DIR = os.path.dirname(__file__)
 
-# compositor nodes added by D-NOISE
-DNOISE_NODES = []
-
 # custom icons dictionary
 CUSTOM_ICONS = None
 
@@ -143,7 +140,7 @@ def runrenderdenoiser(placeholder=None):
     fmutils.setactiveimage('D-NOISE Export')
     fmutils.setcolorspace('D-NOISE Export', file_format)
     bpy.data.images['D-NOISE Export'].update()
-    fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+    #fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
 def runanimdenoiser(placeholder=None):
@@ -195,22 +192,21 @@ def togglednoise(self=None, context=None):
 
 def togglenodes(self=None, context=None):
     """Toggles the D-NOISE nodes in the compositor"""
-    global DNOISE_NODES, SCRIPT_DIR
+    global SCRIPT_DIR
 
     if bpy.context.scene.EnableExtraPasses:
         fmutils.enablepasses()
         optix.cleannodes()
-        DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
+        optix.addnodes(SCRIPT_DIR)
     else:
         fmutils.disablepasses()
-        DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
 
 @persistent
 def loaddnoisesettings(placeholder = None):
     """Loads and applys the D-NOISE settings saved in a .blend file"""
-    global DNOISE_NODES, SCRIPT_DIR
+    global SCRIPT_DIR
 
     if bpy.context.scene.EnableDNOISE:
         bpy.app.handlers.render_init.append(swaptorender)
@@ -220,11 +216,10 @@ def loaddnoisesettings(placeholder = None):
     if bpy.context.scene.EnableExtraPasses:
         fmutils.enablepasses()
         optix.cleannodes()
-        DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
+        optix.addnodes(SCRIPT_DIR)
 
     else:
         fmutils.disablepasses()
-        DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
 #
