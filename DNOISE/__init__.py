@@ -140,7 +140,7 @@ def runrenderdenoiser(placeholder=None):
     fmutils.setactiveimage('D-NOISE Export')
     fmutils.setcolorspace('D-NOISE Export', file_format)
     bpy.data.images['D-NOISE Export'].update()
-    #fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
+    fmutils.deepclean(SCRIPT_DIR, FORMAT_EXTENSIONS)
 
 
 def runanimdenoiser(placeholder=None):
@@ -163,29 +163,13 @@ def swaptorender(placeholder=None):
         if area.type == 'IMAGE_EDITOR' and area.spaces[0].image.name == 'D-NOISE Export':
             area.spaces[0].image = bpy.data.images['Render Result']
 
-    #for closing out of extra render windows
-    """
-    for i in range(len(bpy.data.window_managers['WinMan'].windows[0].screen.areas)):
-        current_type = bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces[0].type
-
-        if len(bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces) > 1:
-            last_type = bpy.data.window_managers['WinMan'].windows[0].screen.areas[i].spaces[1].type
-        else:
-            last_type = None
-
-        if current_type == "IMAGE_EDITOR" and last_type != "VIEW_3D":
-            bpy.data.window_managers[0].windows[0].screen.areas[i].type = last_type
-    """
-
 
 def togglednoise(self=None, context=None):
     """Toggles the D-NOISE denosier for rendering single frames and animations"""
     if not bpy.context.scene.EnableDNOISE:
-        #bpy.app.handlers.render_pre.remove(swaptorender)
         bpy.app.handlers.render_complete.remove(runrenderdenoiser)
         bpy.app.handlers.render_write.remove(runanimdenoiser)
     else:
-        #bpy.app.handlers.render_pre.append(swaptorender)
         bpy.app.handlers.render_complete.append(runrenderdenoiser)
         bpy.app.handlers.render_write.append(runanimdenoiser)
 

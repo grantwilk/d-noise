@@ -160,11 +160,9 @@ def getblend():
 def convertnormals(directory, filename):
     """Carries out the process of converting a world space normal image to a screen space normal image"""
     fmutils.load(directory, filename, 'Normal')
-    print("[D-NOISE] Converting normals...")
     bpy.data.images['Normal'].pixels = toscreenspace(bpy.data.images['Normal'])
     bpy.data.images['Normal'].save()
     bpy.data.images.remove(bpy.data.images['Normal'])
-    print("[D-NOISE] Normals successfully converted.")
 
 
 def toscreenspace(image):
