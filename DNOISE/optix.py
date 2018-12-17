@@ -55,7 +55,7 @@ def fulldenoise(directory, source_name,  normal_name, albedo_name, hdr, blend):
 #
 
 
-def addnodes(output_dir, nodes):
+def addnodes(output_dir):
     """Adds the D-NOISE extra pass node set to the compositor node tree"""
     bpy.context.scene.use_nodes = True
     tree = bpy.context.scene.node_tree
@@ -93,11 +93,6 @@ def addnodes(output_dir, nodes):
     file_output.location = 420, -100
     file_output.hide = True
 
-    nodes.append(render_layer)
-    nodes.append(mix_emit_diffcol)
-    nodes.append(mix_last_subcol)
-    nodes.append(file_output)
-
     # link nodes
     links = tree.links
     links.new(render_layer.outputs['Normal'], file_output.inputs['Normal'])
@@ -106,8 +101,6 @@ def addnodes(output_dir, nodes):
     links.new(mix_emit_diffcol.outputs['Image'], mix_last_subcol.inputs[1])
     links.new(render_layer.outputs['SubsurfaceCol'], mix_last_subcol.inputs[2])
     links.new(mix_last_subcol.outputs['Image'], file_output.inputs['Albedo'])
-
-    return nodes
 
 
 def cleannodes():
