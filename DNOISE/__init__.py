@@ -196,14 +196,13 @@ def togglednoise(self=None, context=None):
 def togglenodes(self=None, context=None):
     """Toggles the D-NOISE nodes in the compositor"""
     global DNOISE_NODES, SCRIPT_DIR
-    active_layer = bpy.context.scene.render.layers.active.name
 
     if bpy.context.scene.EnableExtraPasses:
-        fmutils.enablepasses(active_layer)
+        fmutils.enablepasses()
         optix.cleannodes()
         DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
     else:
-        fmutils.disablepasses(active_layer)
+        fmutils.disablepasses()
         DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 
@@ -212,7 +211,6 @@ def togglenodes(self=None, context=None):
 def loaddnoisesettings(placeholder = None):
     """Loads and applys the D-NOISE settings saved in a .blend file"""
     global DNOISE_NODES, SCRIPT_DIR
-    active_layer = bpy.context.scene.render.layers.active.name
 
     if bpy.context.scene.EnableDNOISE:
         bpy.app.handlers.render_init.append(swaptorender)
@@ -220,12 +218,12 @@ def loaddnoisesettings(placeholder = None):
         bpy.app.handlers.render_write.append(runanimdenoiser)
 
     if bpy.context.scene.EnableExtraPasses:
-        fmutils.enablepasses(active_layer)
+        fmutils.enablepasses()
         optix.cleannodes()
         DNOISE_NODES = optix.addnodes(SCRIPT_DIR, DNOISE_NODES)
 
     else:
-        fmutils.disablepasses(active_layer)
+        fmutils.disablepasses()
         DNOISE_NODES = optix.removenodes(DNOISE_NODES)
         optix.cleannodes()
 

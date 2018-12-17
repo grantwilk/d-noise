@@ -44,7 +44,6 @@ def beautydenoise(directory, source_name, hdr, blend):
     os.system('.\OptiXDenoiser\Denoiser.exe -i "{0}" -o "{0}" -hdr {1} -b {2}'.format(source_name, hdr, blend))
 
 
-
 def fulldenoise(directory, source_name,  normal_name, albedo_name, hdr, blend):
     """Runs OptiX standalone denoiser with information for a full denoising pass"""
     os.chdir(directory)
