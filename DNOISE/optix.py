@@ -62,7 +62,7 @@ def addnodes(output_dir, nodes):
 
     # create new render layer node
     render_layer = tree.nodes.new(type='CompositorNodeRLayers')
-    render_layer.layer = bpy.context.scene.render.layers.active.name
+    render_layer.layer = 'View Layer'
     render_layer.label = '[D-NOISE] Render Layers'
     render_layer.location = 0, 0
 
@@ -108,17 +108,6 @@ def addnodes(output_dir, nodes):
     links.new(mix_last_subcol.outputs['Image'], file_output.inputs['Albedo'])
 
     return nodes
-
-
-def removenodes(nodes):
-    """Removes the D-NOISE extra pass node set to the compositor node tree"""
-    bpy.context.scene.use_nodes = True
-    tree = bpy.context.scene.node_tree
-
-    for node in nodes:
-        tree.nodes.remove(node)
-
-    return []
 
 
 def cleannodes():
@@ -178,9 +167,11 @@ def getblend():
 def convertnormals(directory, filename):
     """Carries out the process of converting a world space normal image to a screen space normal image"""
     fmutils.load(directory, filename, 'Normal')
+    print("[D-NOISE] Converting normals...")
     bpy.data.images['Normal'].pixels = toscreenspace(bpy.data.images['Normal'])
     bpy.data.images['Normal'].save()
     bpy.data.images.remove(bpy.data.images['Normal'])
+    print("[D-NOISE] Normals successfully converted.")
 
 
 def toscreenspace(image):
@@ -192,10 +183,25 @@ def toscreenspace(image):
 
     for i in range(0, len(pixels), 4):
         normal = Vector((pixels[i + 0], pixels[i + 1], pixels[i + 2]))
-        screen_space_normal = camera_rotation * normal
+        #screen_space_normal = qv_mult(camera_rotation, normal)
+        screen_space_normal = camera_rotation @ normal
         pixels[i + 0] = screen_space_normal[0]
         pixels[i + 1] = screen_space_normal[1]
         pixels[i + 2] = screen_space_normal[2]
 
     return pixels
 
+
+def qv_mult(q1, v1):
+    q2 = (0.0,) + v1
+    return q_mult(q_mult(q1, q2), q1.conjugate())[1:]
+
+
+def q_mult(q1, q2):
+    w1, x1, y1, z1 = q1
+    w2, x2, y2, z2 = q2
+    w = w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2
+    x = w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2
+    y = w1 * y2 + y1 * w2 + z1 * x2 - x1 * z2
+    z = w1 * z2 + z1 * w2 + x1 * y2 - y1 * x2
+    return w, x, y, z
