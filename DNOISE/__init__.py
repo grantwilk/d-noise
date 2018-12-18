@@ -374,31 +374,32 @@ def appendto_image_ht_header(self, context):
     layout.separator()
     row = layout.row(align=True)
 
-    if bpy.context.space_data.image.source == 'SEQUENCE':
-        row.operator(
-            "dnoise.quick_denoise",
-            text=SEQUENCE_TEXT,
-            icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
-
-        # for implementing a cancel operation while denoising image sequences
-        """
-        if SEQUENCE_TEXT != 'D-NOISE Sequence':
+    if bpy.context.space_data.image is not None:
+        if bpy.context.space_data.image.source == 'SEQUENCE':
             row.operator(
                 "dnoise.quick_denoise",
-                text="",
-                icon='CANCEL')
-        """
+                text=SEQUENCE_TEXT,
+                icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
 
-    else:
-        row.operator(
-            "dnoise.quick_denoise",
-            text="Quick D-NOISE",
-            icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+            # for implementing a cancel operation while denoising image sequences
+            """
+            if SEQUENCE_TEXT != 'D-NOISE Sequence':
+                row.operator(
+                    "dnoise.quick_denoise",
+                    text="",
+                    icon='CANCEL')
+            """
 
-    if bpy.context.space_data.image is not None and bpy.context.space_data.image.name == 'D-NOISE Export':
-        row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
-    else:
-        row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_ON")
+        else:
+            row.operator(
+                "dnoise.quick_denoise",
+                text="Quick D-NOISE",
+                icon_value=CUSTOM_ICONS['dnoise_icon'].icon_id)
+
+        if bpy.context.space_data.image.name == 'D-NOISE Export':
+            row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_OFF")
+        else:
+            row.operator("dnoise.toggle_export", text="", icon="RESTRICT_VIEW_ON")
 
 
 #
